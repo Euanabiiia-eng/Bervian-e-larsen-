@@ -1,0 +1,13 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@apice/types": ["../../packages/types/src/index"],
+      "@apice/types/*": ["../../packages/types/src/*"],
+      "@apice/utils": ["../../packages/utils/src/index"],
+      "@apice/utils/*": ["../../packages/utils/src/*"]
+    }
+  }
+}
