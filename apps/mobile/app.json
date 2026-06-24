@@ -1,0 +1,40 @@
+{
+  "expo": {
+    "name": "Ápice",
+    "slug": "apice-platform",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0E0D0C"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.apice.platform"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0E0D0C"
+      },
+      "package": "com.apice.platform"
+    },
+    "scheme": "apice",
+    "plugins": [
+      "expo-router",
+      "expo-notifications",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        { "backgroundColor": "#0E0D0C", "image": "./assets/splash.png" }
+      ]
+    ],
+    "extra": {
+      "router": { "origin": false },
+      "eas": { "projectId": "your-eas-project-id" }
+    }
+  }
+}

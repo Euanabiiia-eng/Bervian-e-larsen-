@@ -1,0 +1,266 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Clinic {
+  id            String   @id @default(cuid())
+  nome          String
+  slug          String   @unique
+  logoUrl       String?
+  corPrimaria   String   @default("#8B6914")
+  corSecundaria String   @default("#0E0D0C")
+  plano         String   @default("starter")
+  ativo         Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  users         User[]
+  hospitais     Hospital[]
+  procedimentos Procedimento[]
+  pacientes     Paciente[]
+  leads         Lead[]
+  medicos       Medico[]
+  mensagens     Mensagem[]
+}
+
+model User {
+  id           String    @id @default(cuid())
+  clinicId     String
+  clinic       Clinic    @relation(fields: [clinicId], references: [id])
+  nome         String
+  email        String    @unique
+  senhaHash    String
+  role         String
+  telefone     String?
+  ativo        Boolean   @default(true)
+  ultimoAcesso DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  paciente   Paciente?
+  medico     Medico?
+  aprovacoes Mensagem[] @relation("AprovadoPor")
+}
+
+model Hospital {
+  id       String  @id @default(cuid())
+  clinicId String
+  clinic   Clinic  @relation(fields: [clinicId], references: [id])
+  nome     String
+  tipo     String
+  endereco String?
+  cidade   String?
+  telefone String?
+  contato  String?
+  obs      String?
+  ativo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  procedimentos Procedimento[]
+  cirurgias     Cirurgia[]
+}
+
+model Medico {
+  id           String   @id @default(cuid())
+  clinicId     String
+  clinic       Clinic   @relation(fields: [clinicId], references: [id])
+  userId       String   @unique
+  user         User     @relation(fields: [userId], references: [id])
+  crm          String
+  especialidade String
+  formacao     String?
+  bio          String?
+  agenda       String?
+  ativo        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  pacientes Paciente[]
+  cirurgias Cirurgia[]
+  leads     Lead[]
+}
+
+model Procedimento {
+  id              String   @id @default(cuid())
+  clinicId        String
+  clinic          Clinic   @relation(fields: [clinicId], references: [id])
+  hospitalId      String?
+  hospital        Hospital? @relation(fields: [hospitalId], references: [id])
+  nome            String
+  categoria       String
+  duracaoMin      Int      @default(120)
+  anestesia       String   @default("Geral")
+  valorBase       Float    @default(0)
+  internacao      String   @default("Day Hospital")
+  recuperacaoDias Int      @default(14)
+  descricao       String?  @db.Text
+  lembrete        String?
+  orientacoesPre  String?  @db.Text
+  orientacoesPos  String?  @db.Text
+  materiais       String?  @db.Text
+  complementares  String?
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  videos      ProcedimentoVideo[]
+  pacientes   Paciente[]
+  cirurgias   Cirurgia[]
+  leads       Lead[]
+  respostasIA RespostaIA[]
+}
+
+model ProcedimentoVideo {
+  id             String       @id @default(cuid())
+  procedimentoId String
+  procedimento   Procedimento @relation(fields: [procedimentoId], references: [id])
+  titulo         String
+  url            String?
+  duracao        String?
+  descricao      String?
+  ordem          Int          @default(0)
+  ativo          Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+}
+
+model RespostaIA {
+  id             String       @id @default(cuid())
+  procedimentoId String
+  procedimento   Procedimento @relation(fields: [procedimentoId], references: [id])
+  palavrasChave  String
+  resposta       String       @db.Text
+  ativo          Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Paciente {
+  id               String       @id @default(cuid())
+  clinicId         String
+  clinic           Clinic       @relation(fields: [clinicId], references: [id])
+  userId           String       @unique
+  user             User         @relation(fields: [userId], references: [id])
+  procedimentoId   String?
+  procedimento     Procedimento? @relation(fields: [procedimentoId], references: [id])
+  medicoId         String?
+  medico           Medico?      @relation(fields: [medicoId], references: [id])
+  status           String       @default("pre_op")
+  dataCirurgia     DateTime?
+  horaCirurgia     String?
+  valor            Float?
+  scoreEngajamento Int          @default(0)
+  ultimoAcessoApp  DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  jornada    JornadaEtapa[]
+  documentos Documento[]
+  checklist  ChecklistItem[]
+  mensagens  Mensagem[]
+  cirurgias  Cirurgia[]
+}
+
+model JornadaEtapa {
+  id         String   @id @default(cuid())
+  pacienteId String
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+  tipo       String
+  label      String
+  data       String?
+  status     String   @default("pending")
+  detalhe    String?  @db.Text
+  ordem      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Documento {
+  id         String    @id @default(cuid())
+  pacienteId String
+  paciente   Paciente  @relation(fields: [pacienteId], references: [id])
+  tipo       String
+  titulo     String
+  conteudo   String?   @db.Text
+  urlArquivo String?
+  status     String    @default("disponivel")
+  liberadoEm DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+model ChecklistItem {
+  id         String   @id @default(cuid())
+  pacienteId String
+  paciente   Paciente @relation(fields: [pacienteId], references: [id])
+  texto      String
+  feito      Boolean  @default(false)
+  janela     String   @default("geral")
+  ordem      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Mensagem {
+  id                 String   @id @default(cuid())
+  pacienteId         String
+  paciente           Paciente @relation(fields: [pacienteId], references: [id])
+  clinicId           String
+  clinic             Clinic   @relation(fields: [clinicId], references: [id])
+  remetente          String
+  conteudo           String   @db.Text
+  tipo               String   @default("auto")
+  pendienteAprovacao Boolean  @default(false)
+  sugestaoIA         String?  @db.Text
+  aprovadoPorId      String?
+  aprovadoPor        User?    @relation("AprovadoPor", fields: [aprovadoPorId], references: [id])
+  sentimentoScore    Float?
+  sentimentoLabel    String?
+  createdAt          DateTime @default(now())
+}
+
+model Lead {
+  id             String       @id @default(cuid())
+  clinicId       String
+  clinic         Clinic       @relation(fields: [clinicId], references: [id])
+  procedimentoId String?
+  procedimento   Procedimento? @relation(fields: [procedimentoId], references: [id])
+  medicoId       String?
+  medico         Medico?      @relation(fields: [medicoId], references: [id])
+  nome           String
+  telefone       String?
+  email          String?
+  valorEstimado  Float?
+  estagio        String       @default("lead")
+  ultimoContato  DateTime?
+  obs            String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model Cirurgia {
+  id             String       @id @default(cuid())
+  clinicId       String
+  pacienteId     String
+  paciente       Paciente     @relation(fields: [pacienteId], references: [id])
+  procedimentoId String
+  procedimento   Procedimento @relation(fields: [procedimentoId], references: [id])
+  medicoId       String
+  medico         Medico       @relation(fields: [medicoId], references: [id])
+  hospitalId     String
+  hospital       Hospital     @relation(fields: [hospitalId], references: [id])
+  data           DateTime
+  horaInicio     String?
+  duracaoMin     Int?
+  valor          Float?
+  status         String       @default("agendada")
+  obs            String?      @db.Text
+  statusPosOp    String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
