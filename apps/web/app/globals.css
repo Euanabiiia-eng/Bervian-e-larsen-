@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,400;1,600&family=Jost:wght@200;300;400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #8B6914;
+  --gold-light: #B8965A;
+  --gold-pale: #D4B87A;
+  --ink: #0E0D0C;
+  --ink-dim: #2A2820;
+  --ink-pale: #6A6458;
+  --white: #F7F2EA;
+  --card: #EDE5D8;
+  --card2: #E4DAC8;
+  --ok: #3D6B4F;
+  --danger: #8B2020;
+}
+
+html,
+body {
+  background-color: var(--white);
+  color: var(--ink);
+  font-family: 'Jost', system-ui, sans-serif;
+  font-weight: 300;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--card);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gold-pale);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold-pale) var(--card);
+}
+
+/* Focus ring */
+*:focus-visible {
+  outline: 2px solid var(--gold-pale);
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--gold-pale);
+  color: var(--ink);
+}
+
+@layer components {
+  .btn-gold {
+    @apply bg-gold text-white-cream font-jost font-400 tracking-widest uppercase text-xs px-6 py-3 transition-all duration-200 hover:bg-gold-light active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply border border-gold text-gold font-jost font-400 tracking-widest uppercase text-xs px-6 py-3 transition-all duration-200 hover:bg-gold hover:text-white-cream active:scale-95;
+  }
+
+  .input-field {
+    @apply w-full bg-card border border-card2 text-ink placeholder-ink-pale font-jost font-300 text-sm px-4 py-3 focus:outline-none focus:border-gold transition-colors duration-200;
+  }
+
+  .card-panel {
+    @apply bg-card border border-card2 p-6;
+  }
+}
