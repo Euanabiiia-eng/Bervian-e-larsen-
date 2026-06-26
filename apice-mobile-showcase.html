@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Showcase Mobile</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-l:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--bdr:#3A3830;
+}
+
+body{
+  font-family:'Jost',sans-serif;
+  background:var(--ink);
+  color:var(--cream);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── BG ── */
+.bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(139,105,20,.07) 0, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(139,105,20,.05) 0, transparent 60%);
+}
+.bg-grid{
+  position:fixed;inset:0;z-index:0;
+  background-image:
+    linear-gradient(rgba(42,40,32,.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(42,40,32,.4) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* ── HEADER ── */
+header{
+  position:relative;z-index:10;
+  text-align:center;
+  padding:64px 24px 40px;
+}
+.eyebrow{
+  font-size:9px;letter-spacing:5px;color:var(--gold);
+  margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:12px;
+}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;max-width:60px;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+.eyebrow::after{background:linear-gradient(90deg,var(--gold),transparent)}
+h1{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:clamp(36px,5vw,64px);color:var(--cream);
+  line-height:1;margin-bottom:16px;
+}
+h1 span{color:var(--gold-l)}
+.subtitle{
+  font-size:13px;color:var(--muted);letter-spacing:1px;
+  max-width:500px;margin:0 auto 12px;line-height:1.8;
+}
+.status-pill{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid rgba(139,105,20,.3);background:rgba(139,105,20,.06);
+  padding:6px 16px;font-size:10px;letter-spacing:1.5px;color:var(--gold-l);
+  margin-top:12px;
+}
+.pill-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--up);
+  animation:blink 1.5s ease-in-out infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── PHONES CONTAINER ── */
+.phones{
+  position:relative;z-index:10;
+  display:flex;justify-content:center;align-items:flex-start;
+  gap:0;padding:20px 24px 60px;
+  flex-wrap:wrap;
+}
+
+/* ── PHONE CARD ── */
+.phone-wrap{
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  flex:0 0 auto;
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+.phone-wrap:hover{transform:translateY(-8px)}
+.phone-wrap.center-phone{transform:translateY(-24px) scale(1.04);z-index:5}
+.phone-wrap.center-phone:hover{transform:translateY(-32px) scale(1.04)}
+
+.phone-label-top{
+  font-size:8px;letter-spacing:3px;color:var(--muted);
+  background:var(--ink2);border:1px solid var(--bdr);
+  padding:5px 14px;
+}
+
+/* ── PHONE FRAME ── */
+.phone{
+  width:280px;
+  background:#111;
+  border-radius:40px;
+  padding:14px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.08),
+    0 0 0 8px #1a1a1a,
+    0 0 0 9px rgba(255,255,255,.05),
+    0 40px 80px rgba(0,0,0,.8),
+    0 0 60px rgba(139,105,20,.06);
+  position:relative;
+}
+
+/* Notch / Dynamic Island */
+.phone-notch{
+  width:90px;height:26px;
+  background:#111;border-radius:20px;
+  position:absolute;top:22px;left:50%;transform:translateX(-50%);
+  z-index:5;
+  box-shadow:0 0 0 1px rgba(255,255,255,.06);
+  display:flex;align-items:center;justify-content:center;gap:8px;
+}
+.notch-cam{
+  width:10px;height:10px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #1a3050, #0a0f1a);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08),inset 0 0 4px rgba(0,150,255,.2);
+}
+.notch-sensor{
+  width:4px;height:4px;border-radius:50%;
+  background:#2a1a0a;
+  box-shadow:0 0 6px 2px rgba(255,100,0,.15);
+}
+
+/* Status bar */
+.phone-statusbar{
+  height:40px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 12px;
+  font-size:10px;color:rgba(255,255,255,.5);
+  font-family:'Jost',sans-serif;
+  position:relative;z-index:4;
+}
+.status-time{font-size:11px;font-weight:500;color:rgba(255,255,255,.75)}
+.status-icons{display:flex;align-items:center;gap:4px}
+.status-icons svg{width:14px;height:14px;fill:rgba(255,255,255,.6)}
+.status-battery{
+  width:22px;height:11px;border:1.5px solid rgba(255,255,255,.5);border-radius:2px;position:relative;
+  display:flex;align-items:center;padding:1.5px;
+}
+.status-battery::after{
+  content:'';width:3px;height:5px;background:rgba(255,255,255,.5);border-radius:0 1px 1px 0;
+  position:absolute;right:-5px;top:50%;transform:translateY(-50%);
+}
+.battery-fill{
+  background:rgba(255,255,255,.7);border-radius:1px;
+  height:100%;width:75%;
+}
+
+/* Screen */
+.phone-screen{
+  border-radius:28px;
+  overflow:hidden;
+  background:#0E0D0C;
+  position:relative;
+  height:560px;
+}
+.phone-screen iframe{
+  width:390px;height:844px;
+  border:none;
+  transform:scale(0.718);
+  transform-origin:top left;
+  pointer-events:all;
+}
+
+/* Home bar */
+.phone-home{
+  height:28px;display:flex;align-items:center;justify-content:center;
+}
+.home-bar{
+  width:100px;height:4px;background:rgba(255,255,255,.25);border-radius:2px;
+}
+
+/* ── PHONE DESCRIPTION ── */
+.phone-info{
+  text-align:center;max-width:260px;
+}
+.phone-num{
+  font-family:'Cormorant Garamond',serif;font-size:40px;
+  color:rgba(139,105,20,.15);line-height:1;margin-bottom:4px;
+}
+.phone-title{
+  font-size:13px;color:var(--cream);letter-spacing:.5px;margin-bottom:6px;
+}
+.phone-desc{
+  font-size:10px;color:var(--muted);line-height:1.7;letter-spacing:.3px;
+}
+.phone-tags{
+  display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:10px;
+}
+.tag{
+  font-size:8px;letter-spacing:1.5px;color:var(--gold);
+  border:1px solid rgba(139,105,20,.25);padding:3px 9px;
+  background:rgba(139,105,20,.04);
+}
+
+/* ── CONNECTOR LINES ── */
+.connector{
+  position:absolute;top:50%;
+  width:60px;height:1px;
+  background:linear-gradient(90deg,rgba(139,105,20,.3),rgba(139,105,20,.1));
+}
+.connector.right{right:-60px}
+.connector.left{left:-60px;background:linear-gradient(90deg,rgba(139,105,20,.1),rgba(139,105,20,.3))}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:10;
+  text-align:center;
+  padding:0 24px 60px;
+  border-top:1px solid var(--bdr);
+  margin:0 48px;
+}
+.footer-brand{
+  font-family:'Cormorant Garamond',serif;font-style:italic;
+  font-size:18px;color:var(--gold-l);
+  padding-top:32px;margin-bottom:6px;
+}
+.footer-sub{font-size:9px;letter-spacing:3px;color:var(--muted)}
+.footer-creds{
+  margin-top:24px;display:flex;justify-content:center;gap:40px;flex-wrap:wrap;
+}
+.cred{font-size:10px;color:var(--muted)}
+.cred strong{color:var(--cream);display:block;font-size:11px;margin-bottom:2px}
+
+/* ── FEATURES BAR ── */
+.features{
+  position:relative;z-index:10;
+  display:flex;justify-content:center;gap:0;
+  margin:0 48px 60px;
+  border:1px solid var(--bdr);
+  background:var(--ink2);
+  flex-wrap:wrap;
+}
+.feat{
+  flex:1;min-width:200px;
+  padding:24px 28px;
+  border-right:1px solid var(--bdr);
+  display:flex;align-items:flex-start;gap:14px;
+}
+.feat:last-child{border-right:none}
+.feat-icon{
+  font-size:20px;color:var(--gold);flex-shrink:0;margin-top:2px;
+}
+.feat-title{font-size:11px;color:var(--cream);margin-bottom:4px;letter-spacing:.5px}
+.feat-desc{font-size:10px;color:var(--muted);line-height:1.6}
+
+/* ── RESPONSIVE ── */
+@media(max-width:960px){
+  .phones{gap:24px}
+  .phone-wrap.center-phone{transform:none}
+  .phone-wrap.center-phone:hover{transform:translateY(-8px)}
+  .connector{display:none}
+  .features{margin:0 24px 40px}
+  footer{margin:0 24px}
+}
+@media(max-width:640px){
+  .phone{width:240px}
+  .phone-screen{height:480px}
+  .phone-screen iframe{width:360px;height:780px;transform:scale(0.667)}
+  h1{font-size:32px}
+}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="bg-grid"></div>
+
+<!-- ── HEADER ── -->
+<header>
+  <div class="eyebrow">PLATAFORMA DIGITAL</div>
+  <h1>Ápice <span>by</span><br>Black Premium</h1>
+  <p class="subtitle">Gestão de jornada do paciente para clínicas de cirurgia plástica. Multi-clínica, IA integrada, experiência premium.</p>
+  <div class="status-pill">
+    <span class="pill-dot"></span>
+    API CONECTADA — DADOS REAIS — CLÍNICA BERVIAN & LARSEN
+  </div>
+</header>
+
+<!-- ── FEATURES BAR ── -->
+<div class="features">
+  <div class="feat">
+    <div class="feat-icon">✦</div>
+    <div>
+      <div class="feat-title">Multi-clínica</div>
+      <div class="feat-desc">Isolamento total por clínica com controle de acesso por perfil</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">🤖</div>
+    <div>
+      <div class="feat-title">IA Integrada</div>
+      <div class="feat-desc">Chat automático com aprovação humana e análise de sentimento</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">◈</div>
+    <div>
+      <div class="feat-title">Jornada Completa</div>
+      <div class="feat-desc">8 etapas automáticas, checklist e documentos gerados ao agendar</div>
+    </div>
+  </div>
+  <div class="feat">
+    <div class="feat-icon">★</div>
+    <div>
+      <div class="feat-title">NPS em Tempo Real</div>
+      <div class="feat-desc">Satisfação do paciente monitorada em cada etapa da jornada</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PHONES ── -->
+<div class="phones">
+
+  <!-- PHONE 1: LOGIN -->
+  <div class="phone-wrap">
+    <div class="phone-label-top">TELA 01 — ACESSO</div>
+
+    <div class="phone">
+      <div class="phone-notch">
+        <div class="notch-sensor"></div>
+        <div class="notch-cam"></div>
+      </div>
+
+      <div class="phone-statusbar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <div class="status-battery"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="phone-screen">
+        <iframe src="apice-login.html" scrolling="no" title="Login"></iframe>
+      </div>
+
+      <div class="phone-home"><div class="home-bar"></div></div>
+    </div>
+
+    <div class="phone-info">
+      <div class="phone-num">01</div>
+      <div class="phone-title">Autenticação</div>
+      <div class="phone-desc">Login seguro com JWT. Acesso rápido por perfil — Admin, Médico ou Paciente.</div>
+      <div class="phone-tags">
+        <span class="tag">JWT</span>
+        <span class="tag">MULTI-PERFIL</span>
+        <span class="tag">SEGURO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 2: PAINEL (destaque central) -->
+  <div class="phone-wrap center-phone">
+    <div class="phone-label-top">TELA 02 — PAINEL PRINCIPAL</div>
+
+    <div class="phone" style="box-shadow:0 0 0 1px rgba(212,184,122,.12),0 0 0 8px #1a1a1a,0 0 0 9px rgba(212,184,122,.08),0 60px 100px rgba(0,0,0,.9),0 0 80px rgba(139,105,20,.12)">
+      <div class="phone-notch">
+        <div class="notch-sensor"></div>
+        <div class="notch-cam"></div>
+      </div>
+
+      <div class="phone-statusbar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <div class="status-battery" style="border-color:rgba(212,184,122,.5)"><div class="battery-fill" style="background:var(--gold-l)"></div></div>
+        </div>
+      </div>
+
+      <div class="phone-screen">
+        <iframe src="apice-painel.html" scrolling="no" title="Painel"></iframe>
+      </div>
+
+      <div class="phone-home"><div class="home-bar" style="background:rgba(212,184,122,.3)"></div></div>
+    </div>
+
+    <div class="phone-info">
+      <div class="phone-num" style="color:rgba(212,184,122,.2)">02</div>
+      <div class="phone-title">Dashboard Executivo</div>
+      <div class="phone-desc">KPIs em tempo real, gráficos de evolução, próximas cirurgias e feed de atividade ao vivo.</div>
+      <div class="phone-tags">
+        <span class="tag" style="color:var(--gold-l);border-color:rgba(212,184,122,.3)">KPIs REAIS</span>
+        <span class="tag" style="color:var(--gold-l);border-color:rgba(212,184,122,.3)">GRÁFICOS</span>
+        <span class="tag" style="color:var(--gold-l);border-color:rgba(212,184,122,.3)">FEED AO VIVO</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHONE 3: CIRURGIA -->
+  <div class="phone-wrap">
+    <div class="phone-label-top">TELA 03 — NOVA CIRURGIA</div>
+
+    <div class="phone">
+      <div class="phone-notch">
+        <div class="notch-sensor"></div>
+        <div class="notch-cam"></div>
+      </div>
+
+      <div class="phone-statusbar">
+        <span class="status-time">9:41</span>
+        <div class="status-icons">
+          <svg viewBox="0 0 24 24"><path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3a4.237 4.237 0 00-6 0zm-4-4l2 2a7.074 7.074 0 0110 0l2-2C15.14 9.14 8.87 9.14 5 13z"/></svg>
+          <div class="status-battery"><div class="battery-fill"></div></div>
+        </div>
+      </div>
+
+      <div class="phone-screen">
+        <iframe src="apice-cirurgia.html" scrolling="no" title="Nova Cirurgia"></iframe>
+      </div>
+
+      <div class="phone-home"><div class="home-bar"></div></div>
+    </div>
+
+    <div class="phone-info">
+      <div class="phone-num">03</div>
+      <div class="phone-title">Agendamento</div>
+      <div class="phone-desc">Formulário com preview em tempo real, barra de progresso e integração direta com o banco de dados.</div>
+      <div class="phone-tags">
+        <span class="tag">FORMULÁRIO</span>
+        <span class="tag">PREVIEW</span>
+        <span class="tag">BANCO REAL</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-brand">Ápice</div>
+  <div class="footer-sub">PLATAFORMA BY BLACK PREMIUM — PORTO ALEGRE, RS</div>
+  <div class="footer-creds">
+    <div class="cred"><strong>STACK</strong>Node.js · PostgreSQL · Redis · Prisma · Next.js</div>
+    <div class="cred"><strong>AUTENTICAÇÃO</strong>JWT Access + Refresh Token</div>
+    <div class="cred"><strong>IA</strong>Anthropic Claude — 3 camadas</div>
+    <div class="cred"><strong>VERSÃO</strong>1.0.0 — 2026</div>
+  </div>
+</footer>
+
+<script>
+// Inject token into iframes after login
+window.addEventListener('storage', e => {
+  if (e.key === 'apice_token') {
+    document.querySelectorAll('iframe').forEach(f => {
+      try { f.contentWindow.location.reload() } catch(e) {}
+    })
+  }
+})
+
+// Add subtle parallax to phones on mouse move
+document.addEventListener('mousemove', e => {
+  const mx = (e.clientX / window.innerWidth - 0.5) * 10
+  const my = (e.clientY / window.innerHeight - 0.5) * 6
+  document.querySelectorAll('.phone').forEach((ph, i) => {
+    const factor = i === 1 ? 0.5 : 1
+    ph.style.transform = `perspective(1000px) rotateY(${mx * factor * 0.4}deg) rotateX(${-my * factor * 0.3}deg)`
+  })
+})
+document.addEventListener('mouseleave', () => {
+  document.querySelectorAll('.phone').forEach(ph => {
+    ph.style.transform = ''
+  })
+})
+</script>
+</body>
+</html>
