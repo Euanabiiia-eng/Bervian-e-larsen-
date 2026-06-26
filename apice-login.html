@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Acesso</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-l:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--bdr:#2A2820;
+  --up:#66BB6A;--dn:#EF5350;
+}
+body{font-family:'Jost',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column}
+button,input{font-family:'Jost',sans-serif;outline:none}
+
+/* ── BG ── */
+.bg-lines{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+.bg-lines::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:200%;background:repeating-linear-gradient(45deg,transparent,transparent 60px,rgba(139,105,20,.015) 60px,rgba(139,105,20,.015) 61px)}
+.bg-corner{position:fixed;bottom:0;right:0;width:400px;height:400px;background:radial-gradient(circle at 100% 100%,rgba(139,105,20,.07) 0,transparent 65%);pointer-events:none}
+
+/* ── CARD ── */
+.login-card{position:relative;z-index:1;width:380px;background:var(--ink2);border:1px solid var(--bdr);padding:48px 44px}
+.brand{text-align:center;margin-bottom:40px}
+.brand h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:42px;color:var(--gold-l);letter-spacing:1px;line-height:1}
+.brand p{font-size:8px;letter-spacing:4px;color:var(--muted);margin-top:6px}
+.brand-divider{width:40px;height:1px;background:var(--gold);margin:16px auto}
+
+/* ── FORM ── */
+.field{margin-bottom:20px}
+.field label{display:block;font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:8px}
+.field input{width:100%;background:transparent;border:1px solid var(--bdr);color:var(--cream);padding:12px 14px;font-size:13px;transition:.2s}
+.field input:focus{border-color:var(--gold)}
+.field input::placeholder{color:var(--muted)}
+
+/* ── BTN ── */
+.btn-login{width:100%;background:var(--gold);color:var(--ink);border:none;padding:14px;font-size:9px;letter-spacing:3px;cursor:pointer;transition:.2s;margin-top:4px}
+.btn-login:hover:not(:disabled){background:var(--gold-l)}
+.btn-login:disabled{opacity:.5;cursor:not-allowed}
+
+/* ── ERROR ── */
+.login-err{background:rgba(239,83,80,.12);border:1px solid rgba(239,83,80,.3);color:#EF9A9A;padding:10px 14px;font-size:11px;margin-top:12px;display:none;line-height:1.5}
+
+/* ── QUICK ACCESS ── */
+.quick{margin-top:28px;border-top:1px solid var(--bdr);padding-top:20px}
+.quick p{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:12px}
+.quick-chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--bdr);padding:7px 14px;font-size:10px;color:var(--muted);cursor:pointer;transition:.2s;user-select:none}
+.chip:hover{border-color:var(--gold);color:var(--gold-l);background:rgba(139,105,20,.06)}
+.chip small{display:block;font-size:8px;margin-top:2px;opacity:.7}
+
+/* ── FOOTER ── */
+.login-footer{position:relative;z-index:1;margin-top:28px;font-size:9px;letter-spacing:1.5px;color:var(--muted);text-align:center}
+.login-footer span{color:var(--gold);opacity:.6}
+
+/* ── LOADING BAR ── */
+.loading-bar{height:1px;background:var(--gold);width:0;transition:width .4s ease;position:absolute;top:0;left:0;right:0}
+.loading-bar.active{animation:load-anim 1.5s ease-in-out infinite}
+@keyframes load-anim{0%{width:0;left:0}50%{width:60%;left:20%}100%{width:0;left:100%}}
+</style>
+</head>
+<body>
+<div class="bg-lines"></div>
+<div class="bg-corner"></div>
+
+<div class="login-card">
+  <div class="loading-bar" id="loading-bar"></div>
+
+  <div class="brand">
+    <h1>Ápice</h1>
+    <div class="brand-divider"></div>
+    <p>CLÍNICA BERVIAN & LARSEN — PORTO ALEGRE</p>
+  </div>
+
+  <div class="field">
+    <label>E-MAIL</label>
+    <input id="inp-email" type="email" placeholder="seu@email.com.br" autocomplete="email" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+  <div class="field">
+    <label>SENHA</label>
+    <input id="inp-senha" type="password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+  </div>
+
+  <button class="btn-login" id="btn-login" onclick="doLogin()">ENTRAR NA PLATAFORMA</button>
+  <div class="login-err" id="login-err"></div>
+
+  <div class="quick">
+    <p>ACESSO RÁPIDO — AMBIENTE DE DEMONSTRAÇÃO</p>
+    <div class="quick-chips">
+      <div class="chip" onclick="setUser('admin@bervianlarsen.com.br')">
+        Admin
+        <small>Gerente da Clínica</small>
+      </div>
+      <div class="chip" onclick="setUser('fabricio@bervianlarsen.com.br')">
+        Dr. Bervian
+        <small>Cirurgião</small>
+      </div>
+      <div class="chip" onclick="setUser('fernanda@email.com')">
+        Fernanda
+        <small>Paciente</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="login-footer">
+  <span>✦</span> &nbsp;PLATAFORMA ÁPICE &nbsp;<span>✦</span> &nbsp;VERSÃO 1.0
+</div>
+
+<script>
+const API = 'http://localhost:3001/api'
+
+function setUser(email) {
+  document.getElementById('inp-email').value = email
+  document.getElementById('inp-senha').value = 'apice2026'
+  document.getElementById('inp-senha').focus()
+}
+
+async function doLogin() {
+  const email = document.getElementById('inp-email').value.trim()
+  const senha = document.getElementById('inp-senha').value.trim()
+  const btn   = document.getElementById('btn-login')
+  const err   = document.getElementById('login-err')
+  const bar   = document.getElementById('loading-bar')
+
+  if (!email || !senha) {
+    showErr('Preencha e-mail e senha.')
+    return
+  }
+
+  btn.disabled = true
+  btn.textContent = 'AUTENTICANDO...'
+  err.style.display = 'none'
+  bar.classList.add('active')
+
+  try {
+    const res = await fetch(API + '/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, senha }),
+    })
+    const body = await res.json()
+    if (body.error || !body.data) throw new Error(body.error || 'Credenciais inválidas')
+
+    localStorage.setItem('apice_token', body.data.accessToken)
+    localStorage.setItem('apice_refresh', body.data.refreshToken)
+    localStorage.setItem('apice_user', JSON.stringify(body.data.user))
+
+    btn.textContent = 'REDIRECIONANDO...'
+    setTimeout(() => { window.location.href = 'apice-painel.html' }, 400)
+  } catch(e) {
+    showErr(e.message || 'Erro de conexão. Verifique se a API está rodando.')
+    btn.disabled = false
+    btn.textContent = 'ENTRAR NA PLATAFORMA'
+    bar.classList.remove('active')
+  }
+}
+
+function showErr(msg) {
+  const err = document.getElementById('login-err')
+  err.textContent = msg
+  err.style.display = 'block'
+}
+
+// If already logged in, redirect
+const saved = localStorage.getItem('apice_token')
+if (saved) window.location.href = 'apice-painel.html'
+</script>
+</body>
+</html>

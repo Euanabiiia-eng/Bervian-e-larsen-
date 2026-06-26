@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Painel</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-l:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--bdr:#2A2820;
+  --up:#66BB6A;--dn:#EF5350;
+}
+body{font-family:'Jost',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+button,input,select,textarea{font-family:'Jost',sans-serif;outline:none}
+
+/* ── HEADER ── */
+header{background:var(--ink2);border-bottom:1px solid var(--bdr);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--gold-l);cursor:pointer}
+.logo p{font-size:8px;letter-spacing:3px;color:var(--muted)}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.period-btn{padding:7px 13px;font-size:9px;letter-spacing:1.5px;border:1px solid var(--bdr);background:transparent;color:var(--muted);cursor:pointer;transition:.15s}
+.period-btn:hover,.period-btn.active{border-color:var(--gold);color:var(--gold-l);background:rgba(139,105,20,.08)}
+.user-chip{font-size:10px;color:var(--muted);padding:6px 12px;background:var(--card);border:1px solid var(--bdr)}
+.btn-sair{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:7px 13px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.btn-sair:hover{border-color:var(--dn);color:var(--dn)}
+
+main{padding:24px 32px;max-width:1440px;margin:0 auto}
+
+/* ── ACTIONS ── */
+.actions-row{display:flex;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.act-btn{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--bdr);color:var(--muted);padding:9px 16px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s;text-decoration:none;white-space:nowrap}
+.act-btn:hover{border-color:var(--gold);color:var(--gold-l)}
+.act-btn.primary{background:var(--gold);border-color:var(--gold);color:var(--ink);font-weight:500}
+.act-btn.primary:hover{background:var(--gold-l)}
+.act-badge{background:var(--dn);color:#fff;font-size:8px;padding:1px 6px;border-radius:10px}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:var(--card);padding:20px 18px;border-left:2px solid var(--bdr);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.kpi:hover{border-left-color:var(--gold-l);transform:translateY(-1px)}
+.kpi.accent{border-left-color:var(--gold)}
+.kpi-label{font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:10px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--cream)}
+.kpi-var{font-size:10px;margin-top:6px}
+.up{color:var(--up)}.dn{color:var(--dn)}.nt{color:var(--muted)}
+.kpi-bg{position:absolute;bottom:8px;right:10px;font-size:44px;opacity:.04;user-select:none}
+.kpi-spark{position:absolute;bottom:0;right:0;display:flex;align-items:flex-end;gap:2px;padding:4px 6px;opacity:.2}
+.spark-bar{width:4px;background:var(--gold);min-height:4px}
+
+/* ── SKELETON ── */
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,rgba(42,40,32,.8) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.4s ease-in-out infinite}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skel-kpi{height:88px}
+
+/* ── CHARTS ── */
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:22px}
+.chart-card{background:var(--card);padding:22px}
+.chart-lbl{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:4px}
+.chart-title{font-size:13px;color:var(--cream);margin-bottom:16px}
+.chart-tabs{display:flex;border-bottom:1px solid var(--bdr);margin-bottom:16px}
+.ctab{padding:7px 14px;font-size:9px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.ctab.active{color:var(--gold-l);border-bottom-color:var(--gold)}
+.bar-group{display:flex;align-items:flex-end;gap:6px;height:130px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bsw{flex:1;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;width:100%}
+.bb{width:100%;min-height:4px;transition:height .5s cubic-bezier(.4,0,.2,1);cursor:pointer;position:relative}
+.bb::after{content:attr(data-tip);position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:var(--ink2);border:1px solid var(--gold);padding:3px 8px;font-size:10px;white-space:nowrap;z-index:5;display:none}
+.bb:hover::after{display:block}
+.bl{font-size:8px;color:var(--muted);text-align:center}
+.bv{font-size:9px;color:var(--gold-l)}
+.chart-footer{display:flex;justify-content:space-between;margin-top:8px;font-size:9px;color:var(--muted)}
+.donut-wrap{display:flex;align-items:center;gap:20px;margin-top:8px}
+.legend-item{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.ldot{width:9px;height:9px;flex-shrink:0}
+.lname{font-size:11px;color:var(--cream);flex:1}
+.lval{font-size:10px;color:var(--gold-l);margin-left:auto}
+
+/* ── BOTTOM ── */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{background:var(--card);padding:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title{font-size:9px;letter-spacing:3px;color:var(--muted)}
+.panel-badge{font-size:9px;padding:2px 8px;border:1px solid}
+.badge-live{color:var(--gold-l);border-color:rgba(139,105,20,.3);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.5}}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:8px;letter-spacing:1.5px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--bdr)}
+td{padding:10px;font-size:11px;border-bottom:1px solid rgba(42,40,32,.5);vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.015)}
+.dot-status{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
+.dot-ok{background:var(--up)}.dot-warn{background:var(--gold)}.dot-err{background:var(--dn)}
+.badge-s{font-size:8px;letter-spacing:1px;padding:2px 8px;border:1px solid}
+.b-agendada{background:rgba(139,105,20,.12);color:var(--gold-l);border-color:rgba(139,105,20,.3)}
+.b-realizada{background:rgba(46,125,50,.12);color:#81C784;border-color:rgba(46,125,50,.3)}
+.empty-row td{text-align:center;color:var(--muted);padding:32px;font-size:12px}
+.btn-tiny{padding:3px 8px;font-size:8px;letter-spacing:1px;border:1px solid var(--bdr);background:transparent;color:var(--muted);cursor:pointer;transition:.15s;text-decoration:none;display:inline-block}
+.btn-tiny:hover{border-color:var(--gold);color:var(--gold-l)}
+
+/* ── FEED ── */
+.feed{overflow-y:auto;max-height:280px}
+.feed-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid rgba(42,40,32,.5);transition:.2s}
+.feed-item:hover{background:rgba(255,255,255,.015);margin:0 -6px;padding:9px 6px}
+.feed-ico{width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.fi-gold{background:rgba(139,105,20,.15)}.fi-green{background:rgba(46,125,50,.15)}
+.fi-blue{background:rgba(21,101,192,.15)}.fi-red{background:rgba(192,57,43,.15)}
+.feed-body{flex:1;min-width:0}
+.feed-title{font-size:11px;color:var(--cream);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.feed-sub{font-size:10px;color:var(--muted)}
+.feed-time{font-size:9px;color:var(--muted);flex-shrink:0;margin-top:2px}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--ink2);border-left:2px solid var(--gold);padding:12px 18px;font-size:12px;color:var(--cream);z-index:999;display:none;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.6)}
+#toast.err{border-left-color:var(--dn)}
+#toast.ok{border-left-color:var(--up)}
+
+/* ── AUTH GUARD ── */
+#auth-guard{position:fixed;inset:0;background:var(--ink);z-index:300;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#auth-guard h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;color:var(--gold-l)}
+#auth-guard p{font-size:11px;color:var(--muted)}
+#auth-guard a{border:1px solid var(--gold);color:var(--gold-l);padding:10px 24px;font-size:9px;letter-spacing:2px;cursor:pointer;text-decoration:none;transition:.2s}
+#auth-guard a:hover{background:var(--gold);color:var(--ink)}
+#auth-guard.gone{display:none}
+</style>
+</head>
+<body>
+
+<!-- AUTH GUARD -->
+<div id="auth-guard">
+  <h2>Ápice</h2>
+  <p>Você precisa fazer login para acessar o painel.</p>
+  <a href="apice-login.html">IR PARA O LOGIN</a>
+</div>
+
+<header>
+  <div class="logo" onclick="window.location.href='apice-login.html'" style="cursor:pointer">
+    <h1>Ápice</h1>
+    <p>CLÍNICA BERVIAN & LARSEN</p>
+  </div>
+  <div class="hdr-right">
+    <span class="user-chip" id="hdr-user">—</span>
+    <button class="period-btn" onclick="setPeriod(this,'semana')">SEMANA</button>
+    <button class="period-btn active" onclick="setPeriod(this,'mes')">MÊS</button>
+    <button class="period-btn" onclick="setPeriod(this,'trimestre')">TRIMESTRE</button>
+    <button class="period-btn" onclick="setPeriod(this,'ano')">ANO</button>
+    <button class="btn-sair" onclick="doLogout()">SAIR</button>
+  </div>
+</header>
+
+<main>
+  <div class="actions-row">
+    <a class="act-btn primary" href="apice-cirurgia.html">✦ NOVA CIRURGIA</a>
+    <button class="act-btn" onclick="toast('Módulo em desenvolvimento','info')">◎ NOVO PACIENTE</button>
+    <button class="act-btn" onclick="toast('Módulo em desenvolvimento','info')">⊞ PIPELINE</button>
+    <button class="act-btn" id="btn-msgs">✉ MENSAGENS <span class="act-badge">2</span></button>
+    <button class="act-btn" onclick="loadDashboard()" style="margin-left:auto">↺ ATUALIZAR</button>
+  </div>
+
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi accent skeleton skel-kpi"></div>
+    <div class="kpi accent skeleton skel-kpi"></div>
+    <div class="kpi accent skeleton skel-kpi"></div>
+    <div class="kpi accent skeleton skel-kpi"></div>
+    <div class="kpi skeleton skel-kpi"></div>
+    <div class="kpi skeleton skel-kpi"></div>
+    <div class="kpi skeleton skel-kpi"></div>
+    <div class="kpi skeleton skel-kpi"></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-lbl">EVOLUÇÃO — 2026</div>
+      <div class="chart-title">Cirurgias e receita dos últimos 6 meses</div>
+      <div class="chart-tabs">
+        <div class="ctab active" onclick="switchChart(this,'cir')">CIRURGIAS</div>
+        <div class="ctab" onclick="switchChart(this,'rec')">RECEITA</div>
+      </div>
+      <div class="bar-group" id="main-chart"><div style="color:var(--muted);font-size:12px;margin:auto">Carregando...</div></div>
+      <div class="chart-footer"><span id="cf-total"></span><span id="cf-avg"></span></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-lbl">MIX DE PROCEDIMENTOS</div>
+      <div class="chart-title">Distribuição por tipo</div>
+      <div class="donut-wrap">
+        <svg width="110" height="110" viewBox="0 0 110 110" id="donut-svg"></svg>
+        <div id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">PRÓXIMAS CIRURGIAS</div>
+        <span class="panel-badge" id="prox-badge" style="color:var(--gold-l);border-color:rgba(139,105,20,.3)">—</span>
+      </div>
+      <table>
+        <thead><tr><th>PACIENTE</th><th>PROCEDIMENTO</th><th>DATA</th><th>HORA</th><th></th></tr></thead>
+        <tbody id="prox-tbody"><tr class="empty-row"><td colspan="5">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="panel-title">ATIVIDADE RECENTE</div>
+        <span class="panel-badge badge-live">● AO VIVO</span>
+      </div>
+      <div class="feed" id="feed"></div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:3001/api'
+let token = ''
+let currentPeriod = 'mes'
+let chartMode = 'cir'
+let chartData = { cir: [], rec: [] }
+
+// ── AUTH ──
+function init() {
+  token = localStorage.getItem('apice_token') || ''
+  if (!token) return
+
+  const user = JSON.parse(localStorage.getItem('apice_user') || '{}')
+  document.getElementById('hdr-user').textContent = user.nome || user.email || '—'
+  document.getElementById('auth-guard').classList.add('gone')
+
+  loadDashboard()
+  seedFeed()
+}
+
+function doLogout() {
+  localStorage.removeItem('apice_token')
+  localStorage.removeItem('apice_refresh')
+  localStorage.removeItem('apice_user')
+  window.location.href = 'apice-login.html'
+}
+
+// ── HTTP ──
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  }
+  if (body) opts.body = JSON.stringify(body)
+  const r = await fetch(API + path, opts)
+  if (r.status === 401) { doLogout(); throw new Error('Sessão expirada') }
+  const json = await r.json()
+  if (!r.ok) throw new Error(json.error || 'Erro na requisição')
+  return json.data
+}
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  try {
+    const data = await api('GET', `/clinic/dashboard?period=${currentPeriod}`)
+    renderKPIs(data.kpis)
+    renderCharts(data.charts)
+    renderProximas(data.proximasCirurgias)
+  } catch(e) {
+    toast('Erro ao carregar: ' + e.message, 'err')
+  }
+}
+
+function renderKPIs(k) {
+  const grid = document.getElementById('kpi-grid')
+  grid.innerHTML = `
+    ${kpi(true,'ATENDIMENTOS / MÊS', k.atendimentos, k.atendimentosVar+'%', k.atendimentosVar>=0, '✦')}
+    ${kpi(true,'RECEITA MENSAL', fmtMoney(k.receita), (k.receitaVar>=0?'↑':'↓')+' '+Math.abs(k.receitaVar)+'%', k.receitaVar>=0, '◈')}
+    ${kpi(true,'TICKET MÉDIO', fmtMoney(k.ticketMedio), '', null, '◇')}
+    ${kpi(true,'NPS DA CLÍNICA', k.npsScore, '↑ Excelente', true, '★')}
+    ${kpi(false,'LEADS EM ABERTO', k.leadsAbertos, (k.leadsVar>=0?'↑':'↓')+' '+Math.abs(k.leadsVar)+'%', k.leadsVar>=0, '⊞')}
+    ${kpi(false,'CIRURGIAS AGENDADAS', k.cirurgiasAgendadas, (k.cirurgiasVar>=0?'↑':'↓')+' '+Math.abs(k.cirurgiasVar)+'%', k.cirurgiasVar>=0, '◎')}
+    ${kpi(false,'TAXA DE CONVERSÃO', k.taxaConversao+'%', '', null, '%')}
+    ${kpi(false,'POTENCIAL FECHAMENTO', fmtMoney(k.leadsFechamento?.valor), (k.leadsFechamento?.count||0)+' leads', null, '⊕')}
+  `
+}
+
+function kpi(accent, label, val, varText, positive, icon) {
+  const cls = accent ? 'kpi accent' : 'kpi'
+  const varCls = positive === null ? 'nt' : positive ? 'up' : 'dn'
+  const spark = Array.from({length:6}, () => `<div class="spark-bar" style="height:${8+Math.random()*20}px"></div>`).join('')
+  return `<div class="${cls}">
+    <div class="kpi-label">${label}</div>
+    <div class="kpi-val">${val ?? '—'}</div>
+    ${varText ? `<div class="kpi-var ${varCls}">${varText}</div>` : ''}
+    <div class="kpi-bg">${icon}</div>
+    <div class="kpi-spark">${spark}</div>
+  </div>`
+}
+
+function renderCharts(charts) {
+  chartData.cir = charts.cirurgiasMes || []
+  chartData.rec = charts.receitaMes || []
+  drawChart()
+  drawDonut()
+}
+
+function switchChart(btn, mode) {
+  document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  chartMode = mode
+  drawChart()
+}
+
+function drawChart() {
+  const data = chartMode === 'cir' ? chartData.cir : chartData.rec
+  const el = document.getElementById('main-chart')
+  if (!data.length) { el.innerHTML = '<div style="color:var(--muted);font-size:12px;margin:auto">Sem dados</div>'; return }
+  const vals = data.map(d => d.total || 0)
+  const max = Math.max(...vals, 1)
+  const isMoney = chartMode === 'rec'
+  const fmt = v => isMoney ? 'R$ '+(v/1000).toFixed(0)+'k' : v
+  el.innerHTML = data.map(d => {
+    const v = d.total || 0
+    const h = Math.max(4, Math.round((v/max)*100))
+    return `<div class="bc"><div class="bv">${fmt(v)}</div><div class="bsw"><div class="bb" style="height:${h}%;background:var(--gold)" data-tip="${d.mes}: ${fmt(v)}"></div></div><div class="bl">${d.mes}</div></div>`
+  }).join('')
+  const total = vals.reduce((a,b)=>a+b,0)
+  const avg = (total/data.length).toFixed(isMoney?0:1)
+  document.getElementById('cf-total').textContent = `Total: ${fmt(total)}`
+  document.getElementById('cf-avg').textContent = `Média: ${fmt(Number(avg))}/mês`
+}
+
+function drawDonut() {
+  const procs = [
+    {name:'Rinoplastia', pct:35, color:'#8B6914'},
+    {name:'Abdominoplastia', pct:22, color:'#D4B87A'},
+    {name:'Mamoplastia', pct:18, color:'#6A6458'},
+    {name:'Blefaroplastia', pct:13, color:'#4A4A3A'},
+    {name:'Outros', pct:12, color:'#2A2820'},
+  ]
+  const svg = document.getElementById('donut-svg')
+  const leg = document.getElementById('donut-legend')
+  const cx=55,cy=55,r=40,ri=24; let angle=-Math.PI/2; let paths=''
+  procs.forEach(p => {
+    const sw=(p.pct/100)*Math.PI*2
+    const x1=cx+r*Math.cos(angle),y1=cy+r*Math.sin(angle)
+    const x2=cx+r*Math.cos(angle+sw),y2=cy+r*Math.sin(angle+sw)
+    const xi1=cx+ri*Math.cos(angle),yi1=cy+ri*Math.sin(angle)
+    const xi2=cx+ri*Math.cos(angle+sw),yi2=cy+ri*Math.sin(angle+sw)
+    const lg=sw>Math.PI?1:0
+    paths+=`<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${lg},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${ri},${ri} 0 ${lg},0 ${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${p.color}" stroke="#0E0D0C" stroke-width="1.5"><title>${p.name}: ${p.pct}%</title></path>`
+    angle+=sw
+  })
+  svg.innerHTML=paths+`<text x="55" y="51" text-anchor="middle" font-size="9" fill="#6A6458">TOTAL</text><text x="55" y="63" text-anchor="middle" font-size="11" fill="#D4B87A" font-family="Cormorant Garamond">37</text>`
+  leg.innerHTML=procs.map(p=>`<div class="legend-item"><div class="ldot" style="background:${p.color}"></div><div class="lname">${p.name}</div><div class="lval">${p.pct}%</div></div>`).join('')
+}
+
+function renderProximas(list) {
+  const tbody = document.getElementById('prox-tbody')
+  document.getElementById('prox-badge').textContent = (list||[]).length + ' agendadas'
+  if (!list || !list.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Nenhuma cirurgia agendada</td></tr>'
+    return
+  }
+  tbody.innerHTML = list.map(c => `
+    <tr>
+      <td><span class="dot-status dot-warn"></span>${c.paciente?.user?.nome || '—'}</td>
+      <td>${c.procedimento?.nome || '—'}</td>
+      <td>${fmtDate(c.data)}</td>
+      <td>${c.horaInicio || '—'}</td>
+      <td><a class="btn-tiny" href="apice-cirurgia.html">Editar</a></td>
+    </tr>
+  `).join('')
+}
+
+function setPeriod(btn, p) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'))
+  btn.classList.add('active')
+  currentPeriod = p
+  loadDashboard()
+}
+
+// ── FEED ──
+function addFeed(cls, ico, title, sub, time) {
+  const feed = document.getElementById('feed')
+  const el = document.createElement('div')
+  el.className = 'feed-item'
+  el.style.background = 'rgba(139,105,20,.06)'
+  el.innerHTML = `<div class="feed-ico ${cls}">${ico}</div><div class="feed-body"><div class="feed-title">${title}</div><div class="feed-sub">${sub}</div></div><div class="feed-time">${time}</div>`
+  feed.insertBefore(el, feed.firstChild)
+  setTimeout(() => el.style.background = '', 2500)
+}
+
+function seedFeed() {
+  const items = [
+    ['fi-blue','✉','Mensagem aguardando aprovação','Fernanda Costa — sentimento: RISCO','14:23'],
+    ['fi-green','◎','Lead fechado — Ana Paula Rodrigues','Mamoplastia · R$ 32.000','13:55'],
+    ['fi-gold','✦','Cirurgia agendada — Fernanda Costa','Rinoplastia · Dr. Bervian · 08/07','12:10'],
+    ['fi-blue','🤖','IA respondeu automaticamente','Lucas Mendes — dúvida sobre jejum','11:44'],
+    ['fi-green','✓','Checklist atualizado','Fernanda marcou: exames entregues','10:22'],
+    ['fi-gold','⊞','Lead avançado — Lucas Mendes','Abdominoplastia + Lipo','09:58'],
+  ]
+  document.getElementById('feed').innerHTML = items.map(([cls,ico,title,sub,time]) =>
+    `<div class="feed-item"><div class="feed-ico ${cls}">${ico}</div><div class="feed-body"><div class="feed-title">${title}</div><div class="feed-sub">${sub}</div></div><div class="feed-time">${time}</div></div>`
+  ).join('')
+  setInterval(() => {
+    const auto = [
+      ['fi-blue','🤖','IA respondeu automaticamente','Dúvida sobre pós-operatório',hhmm()],
+      ['fi-green','✓','Checklist atualizado','Fernanda Costa · preparação concluída',hhmm()],
+      ['fi-gold','✦','Lembrete automático enviado','T-72h · Rinoplastia · Fernanda',hhmm()],
+    ]
+    const ev = auto[Math.floor(Math.random()*auto.length)]
+    addFeed(...ev)
+  }, 20000)
+}
+
+// ── UTILS ──
+function toast(msg, type='info', ms=3000) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className = type === 'err' ? 'err' : type === 'ok' ? 'ok' : ''
+  t.style.display = 'block'
+  clearTimeout(t._t)
+  t._t = setTimeout(() => t.style.display = 'none', ms)
+}
+function fmtDate(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
+}
+function fmtMoney(v) {
+  if (!v) return '—'
+  return 'R$ ' + Number(v).toLocaleString('pt-BR')
+}
+function hhmm() {
+  const d = new Date()
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
+}
+
+init()
+</script>
+</body>
+</html>

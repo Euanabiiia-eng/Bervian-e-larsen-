@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Nova Cirurgia</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-l:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--bdr:#2A2820;
+  --up:#66BB6A;--dn:#EF5350;
+}
+body{font-family:'Jost',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+button,input,select,textarea{font-family:'Jost',sans-serif;outline:none}
+
+/* ── HEADER ── */
+header{background:var(--ink2);border-bottom:1px solid var(--bdr);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.logo h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--gold-l)}
+.logo p{font-size:8px;letter-spacing:3px;color:var(--muted)}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.user-chip{font-size:10px;color:var(--muted);padding:6px 12px;background:var(--card);border:1px solid var(--bdr)}
+.btn-back{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:7px 14px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-back:hover{border-color:var(--gold);color:var(--gold-l)}
+.btn-sair{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:7px 13px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.btn-sair:hover{border-color:var(--dn);color:var(--dn)}
+
+/* ── PAGE LAYOUT ── */
+main{padding:32px;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 340px;gap:24px;align-items:start}
+.page-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:32px;color:var(--cream);margin-bottom:4px}
+.page-sub{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:28px}
+
+/* ── FORM CARD ── */
+.form-card{background:var(--ink2);border:1px solid var(--bdr);padding:32px}
+.section-title{font-size:8px;letter-spacing:3px;color:var(--muted);padding-bottom:10px;border-bottom:1px solid var(--bdr);margin-bottom:20px;margin-top:28px}
+.section-title:first-child{margin-top:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.span2{grid-column:span 2}
+
+/* ── FIELDS ── */
+.field{margin-bottom:0}
+.field label{display:block;font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:8px}
+.field input,.field select,.field textarea{width:100%;background:transparent;border:1px solid var(--bdr);color:var(--cream);padding:11px 13px;font-size:13px;transition:.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field select option{background:var(--ink2);color:var(--cream)}
+.field textarea{resize:vertical;min-height:80px}
+.field .hint{font-size:10px;color:var(--gold-l);margin-top:5px;display:none}
+.field .hint.show{display:block}
+.field .validation{font-size:10px;color:var(--dn);margin-top:5px;display:none}
+.field.invalid input,.field.invalid select{border-color:var(--dn)}
+.field.invalid .validation{display:block}
+.field.valid input,.field.valid select{border-color:var(--up)}
+.req{color:var(--dn);margin-left:2px}
+.field input[type="number"]{-moz-appearance:textfield}
+.field input[type="number"]::-webkit-inner-spin-button{opacity:.3}
+
+/* ── SIDE PANEL ── */
+.side{display:flex;flex-direction:column;gap:16px;position:sticky;top:80px}
+
+/* Preview card */
+.preview-card{background:var(--ink2);border:1px solid var(--bdr);padding:24px}
+.preview-heading{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:16px}
+.preview-empty{font-size:12px;color:var(--muted);text-align:center;padding:24px 0}
+.preview-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(42,40,32,.5);gap:8px}
+.preview-row:last-child{border-bottom:none}
+.preview-label{font-size:8px;letter-spacing:1.5px;color:var(--muted);flex-shrink:0;margin-top:2px}
+.preview-val{font-size:12px;color:var(--cream);text-align:right;line-height:1.4}
+.preview-total-label{font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:16px;border-top:1px solid var(--bdr);padding-top:14px;margin-bottom:6px}
+.preview-total-val{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--gold-l)}
+
+/* Status steps */
+.steps-card{background:var(--ink2);border:1px solid var(--bdr);padding:20px}
+.steps-heading{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:16px}
+.step{display:flex;align-items:center;gap:10px;padding:7px 0;font-size:11px}
+.step-dot{width:20px;height:20px;border-radius:50%;border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:.3s}
+.step-dot.done{background:var(--up);border-color:var(--up);color:#fff}
+.step-dot.active{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.step-dot.pending{color:var(--muted)}
+.step-label{color:var(--muted);transition:.3s}
+.step.done .step-label{color:var(--cream)}
+.step.active .step-label{color:var(--gold-l)}
+
+/* ── ACTIONS ── */
+.form-actions{display:flex;justify-content:space-between;align-items:center;margin-top:32px;padding-top:24px;border-top:1px solid var(--bdr)}
+.btn-primary{background:var(--gold);color:var(--ink);border:none;padding:13px 28px;font-size:9px;letter-spacing:2.5px;cursor:pointer;transition:.2s}
+.btn-primary:hover:not(:disabled){background:var(--gold-l)}
+.btn-primary:disabled{opacity:.45;cursor:not-allowed}
+.btn-outline{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:13px 20px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s;text-decoration:none;display:inline-flex;align-items:center}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold-l)}
+.form-status{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.form-status.loading{color:var(--gold-l)}
+.form-status.error{color:var(--dn)}
+.form-status.success{color:var(--up)}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--ink2);border-left:2px solid var(--gold);padding:12px 18px;font-size:12px;color:var(--cream);z-index:999;display:none;max-width:320px;box-shadow:0 4px 20px rgba(0,0,0,.6)}
+#toast.err{border-left-color:var(--dn)}
+#toast.ok{border-left-color:var(--up)}
+
+/* ── SUCCESS SCREEN ── */
+#success-screen{display:none;position:fixed;inset:0;background:var(--ink);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:20px}
+#success-screen.show{display:flex}
+.success-icon{width:80px;height:80px;border-radius:50%;background:rgba(102,187,106,.12);border:1px solid rgba(102,187,106,.3);display:flex;align-items:center;justify-content:center;font-size:32px;animation:pop .4s cubic-bezier(.36,.07,.19,.97)}
+@keyframes pop{0%{transform:scale(.5);opacity:0}80%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.success-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:32px;color:var(--cream)}
+.success-sub{font-size:11px;color:var(--muted);letter-spacing:1px}
+.success-info{background:var(--ink2);border:1px solid var(--bdr);padding:20px 32px;text-align:center;max-width:400px}
+.success-info p{font-size:13px;color:var(--cream);margin-bottom:4px}
+.success-info small{font-size:10px;color:var(--muted)}
+.success-actions{display:flex;gap:12px;margin-top:8px}
+.btn-success-primary{background:var(--gold);color:var(--ink);border:none;padding:12px 28px;font-size:9px;letter-spacing:2px;cursor:pointer;transition:.2s;text-decoration:none;display:inline-block}
+.btn-success-primary:hover{background:var(--gold-l)}
+.btn-success-sec{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:12px 20px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.btn-success-sec:hover{border-color:var(--gold);color:var(--gold-l)}
+
+/* ── AUTH GUARD ── */
+#auth-guard{position:fixed;inset:0;background:var(--ink);z-index:300;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px}
+#auth-guard h2{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:28px;color:var(--gold-l)}
+#auth-guard p{font-size:11px;color:var(--muted)}
+#auth-guard a{border:1px solid var(--gold);color:var(--gold-l);padding:10px 24px;font-size:9px;letter-spacing:2px;cursor:pointer;text-decoration:none}
+#auth-guard.gone{display:none}
+
+/* ── LOADING OVERLAY ── */
+#load-overlay{position:fixed;inset:0;background:rgba(14,13,12,.7);z-index:100;display:none;align-items:center;justify-content:center;gap:14px;flex-direction:column}
+#load-overlay.show{display:flex}
+.load-spinner{width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+.load-text{font-size:10px;letter-spacing:2px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- AUTH GUARD -->
+<div id="auth-guard">
+  <h2>Ápice</h2>
+  <p>Você precisa fazer login para acessar esta página.</p>
+  <a href="apice-login.html">IR PARA O LOGIN</a>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="success-screen">
+  <div class="success-icon">✓</div>
+  <div class="success-title">Cirurgia Agendada</div>
+  <div class="success-sub">REGISTRO SALVO NO BANCO DE DADOS</div>
+  <div class="success-info">
+    <p id="suc-paciente">—</p>
+    <small id="suc-proc">—</small>
+    <br>
+    <small id="suc-data" style="color:var(--gold-l)">—</small>
+  </div>
+  <div class="success-actions">
+    <a class="btn-success-primary" href="apice-painel.html">VER PAINEL</a>
+    <button class="btn-success-sec" onclick="novaCircurgia()">NOVA CIRURGIA</button>
+  </div>
+</div>
+
+<!-- LOADING OVERLAY -->
+<div id="load-overlay">
+  <div class="load-spinner"></div>
+  <div class="load-text">CARREGANDO DADOS...</div>
+</div>
+
+<header>
+  <div class="logo">
+    <h1>Ápice</h1>
+    <p>CLÍNICA BERVIAN & LARSEN</p>
+  </div>
+  <div class="hdr-right">
+    <a class="btn-back" href="apice-painel.html">← PAINEL</a>
+    <span class="user-chip" id="hdr-user">—</span>
+    <button class="btn-sair" onclick="doLogout()">SAIR</button>
+  </div>
+</header>
+
+<main>
+  <!-- LEFT: FORM -->
+  <div>
+    <div class="page-title">Nova Cirurgia</div>
+    <div class="page-sub">AGENDAMENTO E REGISTRO DE PROCEDIMENTO</div>
+
+    <div class="form-card">
+      <!-- SEÇÃO 1: PROCEDIMENTO -->
+      <div class="section-title">DADOS DO PROCEDIMENTO</div>
+      <div class="form-grid">
+
+        <div class="field" id="f-paciente">
+          <label>PACIENTE <span class="req">*</span></label>
+          <select id="sel-paciente" onchange="onChange()">
+            <option value="">— carregando... —</option>
+          </select>
+          <div class="validation">Selecione um paciente</div>
+        </div>
+
+        <div class="field" id="f-procedimento">
+          <label>PROCEDIMENTO <span class="req">*</span></label>
+          <select id="sel-procedimento" onchange="onProcChange()">
+            <option value="">— carregando... —</option>
+          </select>
+          <div class="validation">Selecione um procedimento</div>
+        </div>
+
+        <div class="field" id="f-medico">
+          <label>MÉDICO RESPONSÁVEL <span class="req">*</span></label>
+          <select id="sel-medico" onchange="onChange()">
+            <option value="">— carregando... —</option>
+          </select>
+          <div class="validation">Selecione um médico</div>
+        </div>
+
+        <div class="field" id="f-hospital">
+          <label>HOSPITAL <span class="req">*</span></label>
+          <select id="sel-hospital" onchange="onChange()">
+            <option value="">— carregando... —</option>
+          </select>
+          <div class="validation">Selecione um hospital</div>
+        </div>
+
+      </div>
+
+      <!-- SEÇÃO 2: AGENDAMENTO -->
+      <div class="section-title">AGENDAMENTO</div>
+      <div class="form-grid">
+
+        <div class="field" id="f-data">
+          <label>DATA DA CIRURGIA <span class="req">*</span></label>
+          <input type="date" id="inp-data" onchange="onDateChange()">
+          <div class="validation">Selecione uma data válida</div>
+        </div>
+
+        <div class="field">
+          <label>HORÁRIO DE INÍCIO</label>
+          <input type="time" id="inp-hora" value="07:30">
+        </div>
+
+        <div class="field">
+          <label>DURAÇÃO ESTIMADA (MIN)</label>
+          <input type="number" id="inp-duracao" placeholder="180" min="30" max="720">
+          <div class="hint" id="hint-duracao">Padrão do procedimento</div>
+        </div>
+
+        <div class="field" id="f-valor">
+          <label>VALOR (R$) <span class="req">*</span></label>
+          <input type="number" id="inp-valor" placeholder="28500" min="1" onchange="onValorChange()">
+          <div class="hint" id="hint-valor">Valor padrão do procedimento</div>
+          <div class="validation">Informe o valor da cirurgia</div>
+        </div>
+
+      </div>
+
+      <!-- SEÇÃO 3: ADICIONAL -->
+      <div class="section-title">INFORMAÇÕES ADICIONAIS</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>OBSERVAÇÕES</label>
+          <textarea id="inp-obs" placeholder="Informações relevantes sobre o procedimento, alergias, equipe necessária..."></textarea>
+        </div>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="form-actions">
+        <div class="form-status" id="form-status"></div>
+        <div style="display:flex;gap:10px">
+          <a class="btn-outline" href="apice-painel.html">Cancelar</a>
+          <button class="btn-primary" id="btn-salvar" onclick="submitCirurgia()" disabled>AGENDAR CIRURGIA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: PREVIEW + STEPS -->
+  <div class="side">
+
+    <!-- STEPS -->
+    <div class="steps-card">
+      <div class="steps-heading">PROGRESSO DO FORMULÁRIO</div>
+      <div class="step" id="step-proc">
+        <div class="step-dot pending" id="dot-proc">1</div>
+        <div class="step-label">Procedimento e equipe</div>
+      </div>
+      <div class="step" id="step-data">
+        <div class="step-dot pending" id="dot-data">2</div>
+        <div class="step-label">Data e horário</div>
+      </div>
+      <div class="step" id="step-valor">
+        <div class="step-dot pending" id="dot-valor">3</div>
+        <div class="step-label">Valor da cirurgia</div>
+      </div>
+      <div class="step" id="step-ok">
+        <div class="step-dot pending" id="dot-ok">✓</div>
+        <div class="step-label">Pronto para agendar</div>
+      </div>
+    </div>
+
+    <!-- PREVIEW -->
+    <div class="preview-card">
+      <div class="preview-heading">RESUMO DO AGENDAMENTO</div>
+      <div id="preview-empty" class="preview-empty">Preencha os campos<br>para ver o resumo</div>
+      <div id="preview-content" style="display:none">
+        <div class="preview-row">
+          <span class="preview-label">PACIENTE</span>
+          <span class="preview-val" id="pv-paciente">—</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">PROCEDIMENTO</span>
+          <span class="preview-val" id="pv-proc">—</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">MÉDICO</span>
+          <span class="preview-val" id="pv-medico">—</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">HOSPITAL</span>
+          <span class="preview-val" id="pv-hospital">—</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">DATA</span>
+          <span class="preview-val" id="pv-data">—</span>
+        </div>
+        <div class="preview-row">
+          <span class="preview-label">DURAÇÃO</span>
+          <span class="preview-val" id="pv-duracao">—</span>
+        </div>
+        <div class="preview-total-label">VALOR TOTAL</div>
+        <div class="preview-total-val" id="pv-valor">—</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<script>
+const API = 'http://localhost:3001/api'
+let token = ''
+let formData = { pacientes: [], procedimentos: [], medicos: [], hospitais: [] }
+
+// ── AUTH ──
+function init() {
+  token = localStorage.getItem('apice_token') || ''
+  if (!token) return
+
+  const user = JSON.parse(localStorage.getItem('apice_user') || '{}')
+  document.getElementById('hdr-user').textContent = user.nome || user.email || '—'
+  document.getElementById('auth-guard').classList.add('gone')
+
+  const tomorrow = new Date()
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  document.getElementById('inp-data').value = tomorrow.toISOString().split('T')[0]
+
+  loadFormData()
+}
+
+function doLogout() {
+  localStorage.clear()
+  window.location.href = 'apice-login.html'
+}
+
+// ── HTTP ──
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+  }
+  if (body) opts.body = JSON.stringify(body)
+  const r = await fetch(API + path, opts)
+  if (r.status === 401) { doLogout(); throw new Error('Sessão expirada') }
+  const json = await r.json()
+  if (!r.ok) throw new Error(json.error || JSON.stringify(json.details || 'Erro'))
+  return json.data
+}
+
+// ── LOAD FORM DATA ──
+async function loadFormData() {
+  document.getElementById('load-overlay').classList.add('show')
+  try {
+    const [pacientes, procedimentos, medicos, hospitais] = await Promise.all([
+      api('GET', '/clinic/pacientes'),
+      api('GET', '/admin/procedimentos'),
+      api('GET', '/admin/medicos'),
+      api('GET', '/admin/hospitais'),
+    ])
+    formData = { pacientes, procedimentos, medicos, hospitais }
+    populateSelects()
+    onChange()
+  } catch(e) {
+    toast('Erro ao carregar dados: ' + e.message, 'err')
+  } finally {
+    document.getElementById('load-overlay').classList.remove('show')
+  }
+}
+
+function populateSelects() {
+  const sel = (id, items, labelFn, valFn) => {
+    const el = document.getElementById(id)
+    el.innerHTML = '<option value="">— selecione —</option>' +
+      items.map(i => `<option value="${valFn(i)}">${labelFn(i)}</option>`).join('')
+  }
+
+  sel('sel-paciente', formData.pacientes,
+    p => p.user.nome + (p.procedimento ? ` · ${p.procedimento.nome}` : ''),
+    p => p.id)
+
+  sel('sel-procedimento', formData.procedimentos,
+    p => p.nome,
+    p => p.id)
+
+  sel('sel-medico', formData.medicos,
+    m => m.user.nome + ` — ${m.especialidade || m.crm}`,
+    m => m.id)
+
+  sel('sel-hospital', formData.hospitais,
+    h => h.nome + (h.cidade ? ` · ${h.cidade}` : ''),
+    h => h.id)
+}
+
+// ── FORM EVENTS ──
+function onProcChange() {
+  const procId = document.getElementById('sel-procedimento').value
+  const proc = formData.procedimentos.find(p => p.id === procId)
+  if (proc) {
+    if (proc.duracaoMin) {
+      document.getElementById('inp-duracao').value = proc.duracaoMin
+      document.getElementById('hint-duracao').textContent = `Padrão: ${proc.duracaoMin} min para ${proc.nome}`
+      document.getElementById('hint-duracao').classList.add('show')
+    }
+    if (proc.valor) {
+      document.getElementById('inp-valor').value = proc.valor
+      document.getElementById('hint-valor').textContent = `Valor base: ${fmtMoney(proc.valor)}`
+      document.getElementById('hint-valor').classList.add('show')
+      validateField('f-valor', Number(proc.valor) > 0)
+    }
+  }
+  onChange()
+}
+
+function onDateChange() {
+  const val = document.getElementById('inp-data').value
+  const isValid = val && new Date(val) >= new Date(new Date().toDateString())
+  validateField('f-data', isValid)
+  onChange()
+}
+
+function onValorChange() {
+  const v = Number(document.getElementById('inp-valor').value)
+  validateField('f-valor', v > 0)
+  if (v) {
+    document.getElementById('hint-valor').textContent = `= ${fmtMoney(v)}`
+    document.getElementById('hint-valor').classList.add('show')
+  }
+  onChange()
+}
+
+function onChange() {
+  updatePreview()
+  updateSteps()
+  checkFormValid()
+}
+
+function validateField(fieldId, valid) {
+  const f = document.getElementById(fieldId)
+  if (!f) return
+  f.classList.toggle('invalid', !valid)
+  f.classList.toggle('valid', valid)
+}
+
+function checkFormValid() {
+  const pac  = document.getElementById('sel-paciente').value
+  const proc = document.getElementById('sel-procedimento').value
+  const med  = document.getElementById('sel-medico').value
+  const hosp = document.getElementById('sel-hospital').value
+  const data = document.getElementById('inp-data').value
+  const val  = Number(document.getElementById('inp-valor').value)
+  const ok = !!(pac && proc && med && hosp && data && val > 0)
+  document.getElementById('btn-salvar').disabled = !ok
+  return ok
+}
+
+function updateSteps() {
+  const pac  = document.getElementById('sel-paciente').value
+  const proc = document.getElementById('sel-procedimento').value
+  const med  = document.getElementById('sel-medico').value
+  const hosp = document.getElementById('sel-hospital').value
+  const data = document.getElementById('inp-data').value
+  const val  = Number(document.getElementById('inp-valor').value)
+
+  const step1 = !!(pac && proc && med && hosp)
+  const step2 = !!data
+  const step3 = val > 0
+  const step4 = step1 && step2 && step3
+
+  setStep('proc', step1)
+  setStep('data', step2)
+  setStep('valor', step3)
+  setStep('ok', step4)
+}
+
+function setStep(name, done) {
+  const step = document.getElementById('step-' + name)
+  const dot  = document.getElementById('dot-' + name)
+  step.className = 'step ' + (done ? 'done' : '')
+  dot.className  = 'step-dot ' + (done ? 'done' : 'pending')
+}
+
+function getLabel(id) {
+  const el = document.getElementById(id)
+  return el && el.value ? el.options[el.selectedIndex]?.text : null
+}
+
+function updatePreview() {
+  const pac   = getLabel('sel-paciente')
+  const proc  = getLabel('sel-procedimento')
+  const med   = getLabel('sel-medico')
+  const hosp  = getLabel('sel-hospital')
+  const data  = document.getElementById('inp-data').value
+  const hora  = document.getElementById('inp-hora').value
+  const dur   = document.getElementById('inp-duracao').value
+  const valor = document.getElementById('inp-valor').value
+
+  const hasAny = pac || proc
+  document.getElementById('preview-empty').style.display  = hasAny ? 'none' : 'block'
+  document.getElementById('preview-content').style.display = hasAny ? 'block' : 'none'
+
+  document.getElementById('pv-paciente').textContent = pac || '—'
+  document.getElementById('pv-proc').textContent     = proc || '—'
+  document.getElementById('pv-medico').textContent   = med || '—'
+  document.getElementById('pv-hospital').textContent  = hosp || '—'
+  document.getElementById('pv-data').textContent     = data ? `${fmtDate(data+'T00:00')} às ${hora}h` : '—'
+  document.getElementById('pv-duracao').textContent  = dur ? `${dur} minutos` : '—'
+  document.getElementById('pv-valor').textContent    = valor && Number(valor) > 0 ? fmtMoney(valor) : '—'
+}
+
+// ── SUBMIT ──
+async function submitCirurgia() {
+  if (!checkFormValid()) {
+    toast('Preencha todos os campos obrigatórios', 'err')
+    return
+  }
+
+  const btn = document.getElementById('btn-salvar')
+  btn.disabled = true
+  setStatus('loading', 'Salvando no banco de dados...')
+
+  const payload = {
+    pacienteId:     document.getElementById('sel-paciente').value,
+    procedimentoId: document.getElementById('sel-procedimento').value,
+    medicoId:       document.getElementById('sel-medico').value,
+    hospitalId:     document.getElementById('sel-hospital').value,
+    data:           document.getElementById('inp-data').value + 'T00:00:00',
+    horaInicio:     document.getElementById('inp-hora').value || undefined,
+    duracaoMin:     Number(document.getElementById('inp-duracao').value) || undefined,
+    valor:          Number(document.getElementById('inp-valor').value),
+    obs:            document.getElementById('inp-obs').value || undefined,
+  }
+
+  try {
+    const created = await api('POST', '/clinic/cirurgias', payload)
+
+    document.getElementById('suc-paciente').textContent = created.paciente?.user?.nome || getLabel('sel-paciente') || '—'
+    document.getElementById('suc-proc').textContent     = created.procedimento?.nome || getLabel('sel-procedimento') || '—'
+    document.getElementById('suc-data').textContent     = fmtDate(created.data) + ' às ' + (payload.horaInicio || '07:30') + 'h'
+
+    document.getElementById('success-screen').classList.add('show')
+  } catch(e) {
+    setStatus('error', '✗ ' + e.message)
+    toast('Erro ao salvar: ' + e.message, 'err', 6000)
+    btn.disabled = false
+  }
+}
+
+function novaCircurgia() {
+  document.getElementById('success-screen').classList.remove('show')
+  document.querySelectorAll('select').forEach(el => el.value = '')
+  document.getElementById('inp-duracao').value = ''
+  document.getElementById('inp-valor').value = ''
+  document.getElementById('inp-obs').value = ''
+  const tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate()+1)
+  document.getElementById('inp-data').value = tomorrow.toISOString().split('T')[0]
+  document.querySelectorAll('.field').forEach(f => f.classList.remove('valid','invalid'))
+  setStatus('', '')
+  onChange()
+}
+
+function setStatus(type, msg) {
+  const el = document.getElementById('form-status')
+  el.className = 'form-status ' + type
+  if (type === 'loading') el.innerHTML = `<div class="spinner"></div> ${msg}`
+  else el.textContent = msg
+}
+
+// ── UTILS ──
+function toast(msg, type='info', ms=3500) {
+  const t = document.getElementById('toast')
+  t.textContent = msg
+  t.className = type === 'err' ? 'err' : type === 'ok' ? 'ok' : ''
+  t.style.display = 'block'
+  clearTimeout(t._t)
+  t._t = setTimeout(() => t.style.display = 'none', ms)
+}
+function fmtDate(iso) {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
+}
+function fmtMoney(v) {
+  if (!v) return '—'
+  return 'R$ ' + Number(v).toLocaleString('pt-BR')
+}
+
+init()
+</script>
+</body>
+</html>
