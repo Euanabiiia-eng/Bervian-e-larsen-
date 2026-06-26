@@ -25,8 +25,9 @@ export default function LoginScreen() {
     if (!email || !senha) return Alert.alert('', 'Preencha e-mail e senha')
     setLoading(true)
     try {
-      await login(email.trim().toLowerCase(), senha)
-      router.replace('/(patient)')
+      const u = await login(email.trim().toLowerCase(), senha)
+      const isAdmin = u.role === 'ADMIN' || u.role === 'MEDICO'
+      router.replace(isAdmin ? '/(admin)' : '/(patient)')
     } catch {
       Alert.alert('Acesso negado', 'E-mail ou senha incorretos.')
     } finally {
