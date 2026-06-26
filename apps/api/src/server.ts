@@ -15,7 +15,19 @@ const app = express()
 const PORT = process.env.PORT || 3001
 
 app.use(helmet())
-app.use(cors({ origin: process.env.FRONTEND_URL || 'http://localhost:3000', credentials: true }))
+app.use(cors({
+  origin: (origin, cb) => {
+    const allowed = [
+      process.env.FRONTEND_URL || 'http://localhost:3000',
+      'http://localhost:3000',
+      'http://localhost:3001',
+      null, // file:// origins
+    ]
+    if (!origin || allowed.includes(origin)) return cb(null, true)
+    cb(null, true) // allow all during development
+  },
+  credentials: true,
+}))
 app.use(express.json({ limit: '10mb' }))
 app.use(express.urlencoded({ extended: true }))
 
