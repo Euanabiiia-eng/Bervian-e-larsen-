@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Walkthrough Completo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-light:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--border:#2A2820;
+  --ok:#2E7D32;--err:#C0392B;--blue:#1565C0;
+}
+html,body{height:100%;overflow:hidden;font-family:'Jost',sans-serif;background:var(--ink);color:var(--cream)}
+button,input,textarea,select{font-family:'Jost',sans-serif;outline:none}
+
+/* ══ LAYOUT ══ */
+#app{display:grid;grid-template-columns:220px 1fr;grid-template-rows:auto 1fr;height:100vh}
+#sidebar{grid-row:1/3;background:var(--ink2);border-right:1px solid var(--border);display:flex;flex-direction:column}
+#topbar{background:var(--ink2);border-bottom:1px solid var(--border);padding:12px 28px;display:flex;align-items:center;justify-content:space-between}
+#main{overflow-y:auto;background:var(--ink)}
+
+/* login cover */
+#login-cover{position:fixed;inset:0;background:var(--ink);z-index:900;display:flex;align-items:center;justify-content:center;flex-direction:column}
+#login-cover.hidden{display:none}
+
+/* ══ STEP GUIDE ══ */
+#guide{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:800;
+  background:var(--ink2);border:1px solid var(--gold);min-width:560px;max-width:680px;
+  box-shadow:0 8px 40px rgba(0,0,0,.6)}
+#guide-header{background:var(--gold);padding:10px 20px;display:flex;align-items:center;justify-content:space-between}
+#guide-header span{font-size:9px;letter-spacing:3px;color:var(--ink);font-weight:500}
+#guide-body{padding:20px 24px}
+#guide-step-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-style:italic;color:var(--gold-light);margin-bottom:6px}
+#guide-step-desc{font-size:12px;color:var(--cream);line-height:1.7;margin-bottom:16px}
+#guide-actions{display:flex;align-items:center;justify-content:space-between}
+#guide-progress{display:flex;gap:5px}
+.g-dot{width:6px;height:6px;background:var(--border);border-radius:50%;transition:.2s}
+.g-dot.active{background:var(--gold-light)}
+.g-dot.done{background:var(--gold)}
+#guide-btns{display:flex;gap:8px}
+.g-btn{padding:8px 20px;font-size:9px;letter-spacing:2px;cursor:pointer;border:none;font-family:'Jost',sans-serif}
+.g-btn-skip{background:transparent;border:1px solid var(--border);color:var(--muted)}
+.g-btn-skip:hover{border-color:var(--err);color:var(--err)}
+.g-btn-next{background:var(--gold);color:var(--ink)}
+.g-btn-next:hover{background:var(--gold-light)}
+#guide-hint{font-size:10px;color:var(--muted);margin-top:8px;min-height:16px;font-style:italic}
+
+/* ══ HIGHLIGHT ══ */
+.hl{outline:2px solid var(--gold-light)!important;outline-offset:3px;animation:pulse 1.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{outline-color:var(--gold-light)}50%{outline-color:var(--gold)}}
+
+/* ══ SIDEBAR ══ */
+.sidebar-logo{padding:24px 22px 20px;border-bottom:1px solid var(--border)}
+.sidebar-logo h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold-light)}
+.sidebar-logo p{font-size:8px;letter-spacing:3px;color:var(--muted);margin-top:3px}
+.nav-item{display:flex;align-items:center;gap:11px;padding:12px 22px;font-size:10px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;border-left:2px solid transparent;transition:.15s}
+.nav-item:hover{color:var(--cream);background:rgba(212,184,122,.04)}
+.nav-item.active{color:var(--gold-light);border-left-color:var(--gold);background:rgba(139,105,20,.08)}
+.nav-badge{margin-left:auto;background:var(--err);color:#fff;font-size:8px;padding:1px 5px;border-radius:10px}
+.sidebar-foot{margin-top:auto;padding:16px 22px;border-top:1px solid var(--border)}
+.sidebar-user{font-size:11px;color:var(--cream);margin-bottom:3px}
+.sidebar-role{font-size:9px;color:var(--muted);margin-bottom:12px}
+.btn-logout{width:100%;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;font-size:9px;letter-spacing:2px;cursor:pointer;transition:.2s}
+.btn-logout:hover{border-color:var(--err);color:var(--err)}
+
+/* ══ TOPBAR ══ */
+.topbar-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:20px;color:var(--cream)}
+.topbar-sub{font-size:9px;letter-spacing:2px;color:var(--muted)}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.btn-primary{background:var(--gold);color:var(--ink);border:none;padding:9px 18px;font-size:9px;letter-spacing:2px;cursor:pointer;transition:.2s}
+.btn-primary:hover{background:var(--gold-light)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px 16px;font-size:9px;letter-spacing:1.5px;cursor:pointer;transition:.2s}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold-light)}
+
+/* ══ PAGES ══ */
+.page{display:none;padding:32px 36px;min-height:100%}
+.page.active{display:block}
+.section-hd{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:14px}
+
+/* ══ KPI ══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.kpi{background:var(--card);padding:18px;border-left:2px solid var(--border)}
+.kpi.accent{border-left-color:var(--gold)}
+.kpi-label{font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:10px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--cream)}
+.kpi-var{font-size:10px;margin-top:5px}
+.up{color:#66BB6A}.dn{color:#EF5350}.nt{color:var(--muted)}
+
+/* ══ CHARTS ══ */
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px}
+.chart-box{background:var(--card);padding:20px}
+.chart-label{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:16px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:100px}
+.bc{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.b{background:var(--gold);width:100%;min-height:4px;border-radius:0}
+.bl{font-size:8px;color:var(--muted)}
+.bv{font-size:9px;color:var(--gold-light)}
+
+/* ══ TABLE ══ */
+.tbl-wrap{background:var(--card);overflow:auto;margin-bottom:20px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:8px;letter-spacing:2px;color:var(--muted);padding:10px 14px;border-bottom:1px solid var(--border)}
+td{padding:11px 14px;font-size:12px;border-bottom:1px solid rgba(42,40,32,.5)}
+tr:hover td{background:rgba(42,40,32,.4)}
+.badge{display:inline-block;padding:3px 9px;font-size:8px;letter-spacing:1px;border:1px solid}
+.b-agendada{background:rgba(139,105,20,.12);color:var(--gold-light);border-color:rgba(139,105,20,.3)}
+.b-realizada{background:rgba(46,125,50,.12);color:#81C784;border-color:rgba(46,125,50,.3)}
+.b-pre_op{background:rgba(21,101,192,.12);color:#90CAF9;border-color:rgba(21,101,192,.3)}
+.b-pos_op{background:rgba(46,125,50,.12);color:#81C784;border-color:rgba(46,125,50,.3)}
+.b-alta{background:rgba(139,105,20,.12);color:var(--gold-light);border-color:rgba(139,105,20,.3)}
+.b-lead{background:rgba(100,100,100,.12);color:#ccc;border-color:rgba(100,100,100,.3)}
+.b-consulta{background:rgba(21,101,192,.12);color:#90CAF9;border-color:rgba(21,101,192,.3)}
+.b-proposta{background:rgba(139,105,20,.12);color:var(--gold-light);border-color:rgba(139,105,20,.3)}
+.b-fechamento{background:rgba(46,125,50,.12);color:#81C784;border-color:rgba(46,125,50,.3)}
+
+/* ══ KANBAN ══ */
+.kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.k-col{background:var(--ink2);padding:14px;min-height:420px}
+.k-col-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.k-col-title{font-size:8px;letter-spacing:3px;color:var(--muted)}
+.k-count{background:var(--card);color:var(--muted);font-size:9px;padding:2px 7px}
+.k-card{background:var(--card);padding:14px;margin-bottom:8px;border-left:2px solid transparent;cursor:pointer;transition:.2s}
+.k-card:hover{border-left-color:var(--gold);transform:translateX(2px)}
+.k-name{font-size:13px;color:var(--cream);margin-bottom:3px}
+.k-proc{font-size:10px;color:var(--muted);margin-bottom:6px}
+.k-val{font-size:11px;color:var(--gold-light);margin-bottom:8px}
+.k-meta{font-size:9px;color:var(--muted);margin-bottom:10px}
+.k-btns{display:flex;gap:6px}
+.k-btn{padding:4px 10px;font-size:9px;letter-spacing:1px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:.15s}
+.k-btn:hover,.k-btn.primary{border-color:var(--gold);color:var(--gold-light)}
+.k-btn.primary:hover{background:var(--gold);color:var(--ink)}
+
+/* ══ FORMS ══ */
+.field{margin-bottom:16px}
+.field label{display:block;font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:7px}
+.field input,.field select,.field textarea{width:100%;background:transparent;border:1px solid var(--border);color:var(--cream);padding:10px 12px;font-size:12px;transition:.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gold)}
+.field select option{background:var(--ink2);color:var(--cream)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.span2{grid-column:span 2}
+.form-actions{display:flex;justify-content:flex-end;gap:8px;padding-top:16px;margin-top:16px;border-top:1px solid var(--border)}
+
+/* ══ MODAL ══ */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:700;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--ink2);border:1px solid var(--border);padding:28px;width:540px;max-height:88vh;overflow-y:auto}
+.modal-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--cream);margin-bottom:22px}
+
+/* ══ SEARCH ══ */
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.search{background:var(--card);border:1px solid var(--border);padding:9px 13px;color:var(--cream);font-size:12px;width:260px}
+.search:focus{border-color:var(--gold)}
+
+/* ══ TABS ══ */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 20px;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.2s}
+.tab.active{color:var(--gold-light);border-bottom-color:var(--gold)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* ══ CHAT ══ */
+.chat-wrap{max-width:580px;display:flex;flex-direction:column;height:400px;background:var(--ink2);border:1px solid var(--border)}
+.chat-msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg-row{display:flex}
+.msg-row.right{justify-content:flex-end}
+.bubble{max-width:72%;padding:10px 14px;font-size:12px;line-height:1.6}
+.bubble.patient{background:var(--card);color:var(--cream)}
+.bubble.clinic{background:#EDE5D8;color:var(--ink)}
+.msg-sender{font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:3px}
+.chat-input-row{display:flex;border-top:1px solid var(--border)}
+.chat-inp{flex:1;background:transparent;border:none;padding:12px 14px;color:var(--cream);font-size:12px}
+.chat-send{background:var(--gold);color:var(--ink);border:none;padding:12px 18px;cursor:pointer;font-size:9px;letter-spacing:2px;white-space:nowrap}
+.chat-send:hover{background:var(--gold-light)}
+.typing{display:none;padding:8px 14px;gap:4px;align-items:center}
+.typing.show{display:flex}
+.dot{width:6px;height:6px;background:var(--muted);border-radius:50%;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+
+/* ══ MSG APPROVAL ══ */
+.apv-card{background:var(--card);padding:18px;margin-bottom:14px;border-left:2px solid var(--muted)}
+.apv-card.risco{border-left-color:var(--err)}
+.apv-card.positivo{border-left-color:var(--ok)}
+.apv-head{display:flex;justify-content:space-between;margin-bottom:10px}
+.apv-patient{font-size:13px;color:var(--cream)}
+.apv-time{font-size:9px;color:var(--muted)}
+.apv-bubble{background:var(--ink);padding:9px 13px;font-size:12px;line-height:1.6;margin-bottom:10px}
+.apv-label{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.apv-textarea{width:100%;background:#1A1918;border:1px solid var(--border);color:var(--cream);padding:10px;font-size:12px;line-height:1.6;resize:vertical;margin-bottom:10px}
+.apv-btns{display:flex;gap:8px}
+.btn-ok{background:rgba(46,125,50,.2);border:1px solid rgba(46,125,50,.4);color:#81C784;padding:7px 14px;font-size:9px;letter-spacing:1px;cursor:pointer;transition:.2s}
+.btn-ok:hover{background:rgba(46,125,50,.4)}
+.btn-no{background:transparent;border:1px solid var(--border);color:var(--muted);padding:7px 14px;font-size:9px;letter-spacing:1px;cursor:pointer;transition:.2s}
+.btn-no:hover{border-color:var(--err);color:var(--err)}
+.sent-badge{font-size:8px;letter-spacing:1px;padding:2px 8px;border:1px solid}
+.sb-pos{color:#81C784;border-color:rgba(46,125,50,.4)}
+.sb-neu{color:var(--muted);border-color:var(--border)}
+.sb-neg{color:#EF9A9A;border-color:rgba(192,57,43,.4)}
+.sb-risco{color:#FF7043;border-color:rgba(244,67,54,.4)}
+
+/* ══ PROC ══ */
+.proc-item{background:var(--card);padding:16px;margin-bottom:8px;cursor:pointer}
+.proc-row{display:flex;justify-content:space-between;align-items:center}
+.proc-name{font-size:14px;color:var(--cream)}
+.proc-cat{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:2px}
+.proc-right{text-align:right}
+.proc-val{font-size:13px;color:var(--gold-light)}
+.proc-toggle{font-size:9px;color:var(--muted);margin-top:3px}
+.proc-detail{display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}
+.proc-detail.open{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pd-item .pd-label{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:3px}
+.pd-item .pd-val{font-size:12px;color:var(--cream)}
+.span2-g{grid-column:span 2}
+
+/* ══ CARD GRID ══ */
+.card-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.info-card{background:var(--card);padding:18px;border-top:2px solid var(--border)}
+.info-card.gold{border-top-color:var(--gold)}
+.info-card h3{font-size:14px;color:var(--cream);margin-bottom:5px}
+.info-card .sub{font-size:10px;color:var(--gold-light);margin-bottom:8px}
+.info-card p{font-size:11px;color:var(--muted);margin-bottom:3px}
+.info-tag{display:inline-block;font-size:8px;letter-spacing:2px;border:1px solid var(--border);color:var(--muted);padding:2px 8px;margin-top:8px}
+
+/* ══ JOURNEY ══ */
+.journey-progress{background:var(--card);padding:16px;margin-bottom:16px}
+.jp-bar{height:3px;background:var(--ink);margin:8px 0 4px}
+.jp-fill{height:3px;background:var(--gold);transition:.6s}
+.jp-txt{font-size:9px;letter-spacing:2px;color:var(--muted)}
+.step-list{display:flex;flex-direction:column;gap:2px}
+.step{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--card);cursor:pointer;border-left:2px solid transparent;transition:.15s}
+.step:hover{background:rgba(42,40,32,.6)}
+.step.done{border-left-color:var(--ok)}
+.step.active-step{border-left-color:var(--gold);background:rgba(139,105,20,.06)}
+.step-ico{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.step-ico.done{background:rgba(46,125,50,.15)}
+.step-ico.active-step{background:rgba(139,105,20,.15)}
+.step-ico.pending{background:rgba(42,40,32,.8)}
+.step-info h4{font-size:12px;color:var(--cream);margin-bottom:2px}
+.step-info p{font-size:10px;color:var(--muted)}
+.step.active-step .step-info h4{color:var(--gold-light)}
+.step-expand{margin-top:0;overflow:hidden;max-height:0;transition:max-height .3s ease}
+.step-expand.open{max-height:200px}
+.step-detail{background:#1A1918;padding:14px 16px 14px 60px;border-left:2px solid var(--gold);font-size:12px;color:var(--muted);line-height:1.7}
+.step-detail-checklist{margin-top:8px;display:flex;flex-direction:column;gap:4px}
+.ck-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:3px 0}
+.ck-box{width:14px;height:14px;border:1px solid var(--muted);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:.2s}
+.ck-item.checked .ck-box{border-color:var(--gold);background:rgba(139,105,20,.2);color:var(--gold-light)}
+.ck-item.checked span{text-decoration:line-through;color:var(--muted)}
+
+/* ══ TOAST ══ */
+#toast{position:fixed;bottom:28px;right:28px;background:var(--ink2);border-left:2px solid var(--gold);padding:12px 18px;font-size:12px;color:var(--cream);z-index:9999;display:none;max-width:300px;box-shadow:0 4px 20px rgba(0,0,0,.5)}
+
+/* ══ LOGIN ══ */
+.login-box{width:340px;padding:44px 38px;border:1px solid var(--card)}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo h1{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:30px;color:var(--gold-light)}
+.login-logo p{font-size:8px;letter-spacing:4px;color:var(--muted);margin-top:5px}
+.login-chips{margin-top:20px;border-top:1px solid var(--card);padding-top:16px}
+.login-chips p{font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:8px}
+.chip{display:inline-block;border:1px solid var(--card);padding:5px 11px;font-size:10px;color:var(--muted);cursor:pointer;margin:3px;transition:.2s}
+.chip:hover{border-color:var(--gold);color:var(--gold-light)}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ══════════════════════════════════
+     LOGIN COVER
+══════════════════════════════════ -->
+<div id="login-cover">
+  <div class="login-box">
+    <div class="login-logo">
+      <h1>Ápice</h1>
+      <p>BY BLACK PREMIUM</p>
+    </div>
+    <div class="field">
+      <label>E-MAIL</label>
+      <input id="l-email" type="email" value="admin@bervianlarsen.com.br">
+    </div>
+    <div class="field">
+      <label>SENHA</label>
+      <input id="l-senha" type="password" value="apice2026">
+    </div>
+    <button class="btn-primary" style="width:100%;margin-top:4px" onclick="doLogin()">ENTRAR NA PLATAFORMA</button>
+    <div class="login-chips">
+      <p>ACESSO RÁPIDO</p>
+      <span class="chip" onclick="setLogin('admin@bervianlarsen.com.br')">Admin</span>
+      <span class="chip" onclick="setLogin('fabricio@bervianlarsen.com.br')">Dr. Bervian</span>
+      <span class="chip" onclick="setLogin('fernanda@email.com')">Fernanda (Paciente)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     MODALS
+══════════════════════════════════ -->
+<div class="modal-bg" id="m-cirurgia">
+  <div class="modal">
+    <div class="modal-title">Nova Cirurgia</div>
+    <div class="form-grid">
+      <div class="field"><label>PACIENTE</label>
+        <select><option>Fernanda Costa</option><option>Lucas Mendes</option><option>Ana Paula Rodrigues</option><option>Mariana Lima</option></select></div>
+      <div class="field"><label>MÉDICO</label>
+        <select><option>Dr. Fabrício Bervian</option><option>Dr. Guilherme Larsen</option></select></div>
+      <div class="field"><label>PROCEDIMENTO</label>
+        <select><option>Rinoplastia Primária</option><option>Abdominoplastia</option><option>Mamoplastia</option><option>Blefaroplastia</option><option>Ritidoplastia</option><option>Lipoaspiração</option></select></div>
+      <div class="field"><label>HOSPITAL</label>
+        <select><option>Hospital Moinhos de Vento</option><option>Hospital São Lucas PUCRS</option><option>Venâncio Day Hospital</option></select></div>
+      <div class="field"><label>DATA</label><input type="date" value="2026-07-20"></div>
+      <div class="field"><label>HORÁRIO</label><input type="time" value="07:30"></div>
+      <div class="field"><label>VALOR (R$)</label><input type="number" placeholder="28500" value="28500"></div>
+      <div class="field"><label>STATUS</label>
+        <select><option>agendada</option><option>realizada</option><option>cancelada</option></select></div>
+      <div class="field span2"><label>OBSERVAÇÕES</label>
+        <textarea rows="2" placeholder="Informações adicionais sobre a cirurgia..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="closeM('m-cirurgia')">Cancelar</button>
+      <button class="btn-primary" onclick="saveCirurgia()">Salvar Cirurgia</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-lead">
+  <div class="modal">
+    <div class="modal-title">Novo Lead</div>
+    <div class="form-grid">
+      <div class="field"><label>NOME COMPLETO</label><input type="text" id="lead-nome" placeholder="Nome do paciente"></div>
+      <div class="field"><label>TELEFONE</label><input type="text" placeholder="(51) 9 0000-0000"></div>
+      <div class="field"><label>PROCEDIMENTO DE INTERESSE</label>
+        <select><option>Rinoplastia Primária</option><option>Abdominoplastia</option><option>Mamoplastia</option><option>Blefaroplastia</option><option>Lipoaspiração</option></select></div>
+      <div class="field"><label>ORIGEM</label>
+        <select><option>Instagram</option><option>Indicação</option><option>Site</option><option>WhatsApp</option><option>Google</option></select></div>
+      <div class="field"><label>VALOR ESTIMADO (R$)</label><input type="number" placeholder="28500"></div>
+      <div class="field"><label>MÉDICO PREFERIDO</label>
+        <select><option>Dr. Fabrício Bervian</option><option>Dr. Guilherme Larsen</option><option>Sem preferência</option></select></div>
+      <div class="field span2"><label>OBSERVAÇÕES</label>
+        <textarea rows="2" placeholder="Informações relevantes sobre o lead..."></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="closeM('m-lead')">Cancelar</button>
+      <button class="btn-primary" onclick="saveLead()">Criar Lead</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="m-paciente">
+  <div class="modal">
+    <div class="modal-title">Novo Paciente</div>
+    <div class="form-grid">
+      <div class="field"><label>NOME COMPLETO</label><input type="text" placeholder="Nome do paciente"></div>
+      <div class="field"><label>CPF</label><input type="text" placeholder="000.000.000-00"></div>
+      <div class="field"><label>E-MAIL</label><input type="email" placeholder="email@exemplo.com"></div>
+      <div class="field"><label>TELEFONE</label><input type="text" placeholder="(51) 9 0000-0000"></div>
+      <div class="field"><label>DATA DE NASCIMENTO</label><input type="date"></div>
+      <div class="field"><label>MÉDICO</label>
+        <select><option>Dr. Fabrício Bervian</option><option>Dr. Guilherme Larsen</option></select></div>
+      <div class="field"><label>PROCEDIMENTO</label>
+        <select><option>— selecione —</option><option>Rinoplastia Primária</option><option>Abdominoplastia</option><option>Mamoplastia</option><option>Blefaroplastia</option></select></div>
+      <div class="field"><label>DATA DA CIRURGIA</label><input type="date"></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn-outline" onclick="closeM('m-paciente')">Cancelar</button>
+      <button class="btn-primary" onclick="savePaciente()">Cadastrar Paciente</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     APP SHELL
+══════════════════════════════════ -->
+<div id="app">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-logo">
+      <h1>Ápice</h1>
+      <p>BERVIAN & LARSEN</p>
+    </div>
+    <nav id="nav">
+      <div class="nav-item active" data-page="dashboard" onclick="goPage('dashboard',this)">◈&nbsp;&nbsp;DASHBOARD</div>
+      <div class="nav-item" data-page="pipeline"   onclick="goPage('pipeline',this)">⊞&nbsp;&nbsp;PIPELINE</div>
+      <div class="nav-item" data-page="cirurgias"  onclick="goPage('cirurgias',this)">✦&nbsp;&nbsp;CIRURGIAS</div>
+      <div class="nav-item" data-page="pacientes"  onclick="goPage('pacientes',this)">◎&nbsp;&nbsp;PACIENTES</div>
+      <div class="nav-item" data-page="mensagens"  onclick="goPage('mensagens',this)">✉&nbsp;&nbsp;MENSAGENS<span class="nav-badge" id="badge-msgs">2</span></div>
+      <div class="nav-item" data-page="procedimentos" onclick="goPage('procedimentos',this)">◇&nbsp;&nbsp;PROCEDIMENTOS</div>
+      <div class="nav-item" data-page="hospitais"  onclick="goPage('hospitais',this)">⊕&nbsp;&nbsp;HOSPITAIS</div>
+      <div class="nav-item" data-page="medicos"    onclick="goPage('medicos',this)">◑&nbsp;&nbsp;MÉDICOS</div>
+      <div class="nav-item" data-page="jornada"    onclick="goPage('jornada',this)" style="border-top:1px solid var(--border);margin-top:8px">📱&nbsp;&nbsp;APP PACIENTE</div>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="sidebar-user" id="su-name">Administrador Ápice</div>
+      <div class="sidebar-role" id="su-role">clinic_admin · Bervian & Larsen</div>
+      <button class="btn-logout" onclick="doLogout()">SAIR</button>
+    </div>
+  </aside>
+
+  <!-- TOPBAR -->
+  <header id="topbar">
+    <div>
+      <div class="topbar-title" id="tb-title">Dashboard</div>
+      <div class="topbar-sub" id="tb-sub">JUNHO 2026 · CLÍNICA BERVIAN & LARSEN</div>
+    </div>
+    <div class="topbar-right" id="tb-actions"></div>
+  </header>
+
+  <!-- MAIN -->
+  <main id="main">
+
+    <!-- ── DASHBOARD ── -->
+    <div class="page active" id="page-dashboard">
+      <div class="kpi-grid">
+        <div class="kpi accent"><div class="kpi-label">ATENDIMENTOS / MÊS</div><div class="kpi-val">37</div><div class="kpi-var up">↑ 17% vs anterior</div></div>
+        <div class="kpi accent"><div class="kpi-label">RECEITA MENSAL</div><div class="kpi-val">R$&nbsp;158k</div><div class="kpi-var up">↑ 15%</div></div>
+        <div class="kpi accent"><div class="kpi-label">TICKET MÉDIO</div><div class="kpi-val">R$&nbsp;22,6k</div><div class="kpi-var up">↑ 8%</div></div>
+        <div class="kpi accent"><div class="kpi-label">NPS DA CLÍNICA</div><div class="kpi-val">94</div><div class="kpi-var up">↑ Excelente</div></div>
+        <div class="kpi"><div class="kpi-label">LEADS EM ABERTO</div><div class="kpi-val">6</div><div class="kpi-var up">↑ 2 novos esta semana</div></div>
+        <div class="kpi"><div class="kpi-label">CIRURGIAS AGENDADAS</div><div class="kpi-val">4</div><div class="kpi-var nt">Próximos 30 dias</div></div>
+        <div class="kpi"><div class="kpi-label">TAXA DE CONVERSÃO</div><div class="kpi-val">25%</div><div class="kpi-var dn">↓ 5%</div></div>
+        <div class="kpi"><div class="kpi-label">FECHAMENTO — POTENCIAL</div><div class="kpi-val">R$&nbsp;70k</div><div class="kpi-var" style="color:var(--gold-light)">2 leads em proposta</div></div>
+      </div>
+      <div class="chart-row">
+        <div class="chart-box">
+          <div class="chart-label">CIRURGIAS POR MÊS — 2026</div>
+          <div class="bar-chart" id="c1"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-label">RECEITA MENSAL (R$ mil)</div>
+          <div class="bar-chart" id="c2"></div>
+        </div>
+      </div>
+      <div class="section-hd">PRÓXIMAS CIRURGIAS</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>PACIENTE</th><th>PROCEDIMENTO</th><th>MÉDICO</th><th>DATA</th><th>HORÁRIO</th><th>HOSPITAL</th><th>STATUS</th></tr></thead>
+          <tbody>
+            <tr><td>Fernanda Costa</td><td>Rinoplastia Primária</td><td>Dr. Bervian</td><td>08/07/2026</td><td>07:30h</td><td>Moinhos de Vento</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+            <tr><td>Lucas Mendes</td><td>Abdominoplastia</td><td>Dr. Larsen</td><td>15/07/2026</td><td>08:00h</td><td>São Lucas PUCRS</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+            <tr><td>Ana Paula Rodrigues</td><td>Mamoplastia</td><td>Dr. Larsen</td><td>22/07/2026</td><td>09:00h</td><td>Venâncio Day Hospital</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PIPELINE ── -->
+    <div class="page" id="page-pipeline">
+      <div class="kanban" id="kanban">
+        <div class="k-col" id="col-lead">
+          <div class="k-col-head"><span class="k-col-title">LEAD</span><span class="k-count" id="cnt-lead">3</span></div>
+          <div class="k-card" id="kc-carolina">
+            <div class="k-name">Carolina Souza</div>
+            <div class="k-proc">Rinoplastia Primária</div>
+            <div class="k-val">R$ 28.500</div>
+            <div class="k-meta">Instagram · há 2 dias</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="advanceLead('kc-carolina','Carolina Souza','Consulta')">AVANÇAR →</button></div>
+          </div>
+          <div class="k-card">
+            <div class="k-name">Patrícia Nunes</div>
+            <div class="k-proc">Blefaroplastia</div>
+            <div class="k-val">R$ 15.000</div>
+            <div class="k-meta">Indicação · há 5 dias</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="advanceLead(this.closest('.k-card'),'Patrícia Nunes','Consulta')">AVANÇAR →</button><button class="k-btn" onclick="archiveLead(this.closest('.k-card'))">ARQUIVAR</button></div>
+          </div>
+          <div class="k-card">
+            <div class="k-name">Mariana Lima</div>
+            <div class="k-proc">Lipoaspiração</div>
+            <div class="k-val">R$ 18.000</div>
+            <div class="k-meta">Site · hoje</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="advanceLead(this.closest('.k-card'),'Mariana Lima','Consulta')">AVANÇAR →</button><button class="k-btn" onclick="archiveLead(this.closest('.k-card'))">ARQUIVAR</button></div>
+          </div>
+        </div>
+        <div class="k-col" id="col-consulta">
+          <div class="k-col-head"><span class="k-col-title">CONSULTA</span><span class="k-count" id="cnt-consulta">2</span></div>
+          <div class="k-card">
+            <div class="k-name">Rafaela Braga</div>
+            <div class="k-proc">Abdominoplastia</div>
+            <div class="k-val">R$ 35.000</div>
+            <div class="k-meta">Consulta: 02/07/2026</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="advanceLead(this.closest('.k-card'),'Rafaela Braga','Proposta')">AVANÇAR →</button><button class="k-btn" onclick="archiveLead(this.closest('.k-card'))">ARQUIVAR</button></div>
+          </div>
+          <div class="k-card">
+            <div class="k-name">Juliana Martins</div>
+            <div class="k-proc">Ritidoplastia</div>
+            <div class="k-val">R$ 42.000</div>
+            <div class="k-meta">Consulta: 05/07/2026</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="advanceLead(this.closest('.k-card'),'Juliana Martins','Proposta')">AVANÇAR →</button><button class="k-btn" onclick="archiveLead(this.closest('.k-card'))">ARQUIVAR</button></div>
+          </div>
+        </div>
+        <div class="k-col" id="col-proposta">
+          <div class="k-col-head"><span class="k-col-title">PROPOSTA</span><span class="k-count" id="cnt-proposta">1</span></div>
+          <div class="k-card">
+            <div class="k-name">Lucas Mendes</div>
+            <div class="k-proc">Abdominoplastia + Lipoaspiração</div>
+            <div class="k-val">R$ 52.000</div>
+            <div class="k-meta">Proposta: 20/06/2026</div>
+            <div class="k-btns"><button class="k-btn primary" onclick="closeLead(this.closest('.k-card'),'Lucas Mendes')">FECHAR ✓</button><button class="k-btn" onclick="archiveLead(this.closest('.k-card'))">ARQUIVAR</button></div>
+          </div>
+        </div>
+        <div class="k-col" id="col-fechamento">
+          <div class="k-col-head"><span class="k-col-title">FECHAMENTO</span><span class="k-count" id="cnt-fechamento">2</span></div>
+          <div class="k-card" style="border-left:2px solid var(--gold)">
+            <div class="k-name">Fernanda Costa</div>
+            <div class="k-proc">Rinoplastia Primária</div>
+            <div class="k-val">R$ 28.500</div>
+            <div class="k-meta" style="color:#81C784">✓ Cirurgia: 08/07/2026</div>
+          </div>
+          <div class="k-card" style="border-left:2px solid var(--gold)">
+            <div class="k-name">Ana Paula Rodrigues</div>
+            <div class="k-proc">Mamoplastia</div>
+            <div class="k-val">R$ 32.000</div>
+            <div class="k-meta" style="color:#81C784">✓ Cirurgia: 22/07/2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── CIRURGIAS ── -->
+    <div class="page" id="page-cirurgias">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>PACIENTE</th><th>PROCEDIMENTO</th><th>MÉDICO</th><th>DATA</th><th>HOR.</th><th>HOSPITAL</th><th>VALOR</th><th>STATUS</th></tr></thead>
+          <tbody id="cir-tbody">
+            <tr><td>Fernanda Costa</td><td>Rinoplastia Primária</td><td>Dr. Bervian</td><td>08/07/2026</td><td>07:30h</td><td>Moinhos de Vento</td><td>R$ 28.500</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+            <tr><td>Lucas Mendes</td><td>Abdominoplastia</td><td>Dr. Larsen</td><td>15/07/2026</td><td>08:00h</td><td>São Lucas PUCRS</td><td>R$ 35.000</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+            <tr><td>Ana Paula Rodrigues</td><td>Mamoplastia</td><td>Dr. Larsen</td><td>22/07/2026</td><td>09:00h</td><td>Venâncio Day Hospital</td><td>R$ 32.000</td><td><span class="badge b-agendada">AGENDADA</span></td></tr>
+            <tr><td>Roberto Alves</td><td>Rinoplastia Secundária</td><td>Dr. Bervian</td><td>15/06/2026</td><td>07:00h</td><td>Moinhos de Vento</td><td>R$ 31.000</td><td><span class="badge b-realizada">REALIZADA</span></td></tr>
+            <tr><td>Camila Torres</td><td>Ritidoplastia</td><td>Dr. Bervian</td><td>10/06/2026</td><td>07:30h</td><td>São Lucas PUCRS</td><td>R$ 42.000</td><td><span class="badge b-realizada">REALIZADA</span></td></tr>
+            <tr><td>Sandra Freitas</td><td>Blefaroplastia</td><td>Dr. Bervian</td><td>05/06/2026</td><td>08:00h</td><td>Venâncio Day Hospital</td><td>R$ 18.000</td><td><span class="badge b-realizada">REALIZADA</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── PACIENTES ── -->
+    <div class="page" id="page-pacientes">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>NOME</th><th>E-MAIL</th><th>PROCEDIMENTO</th><th>MÉDICO</th><th>DATA CIR.</th><th>STATUS</th></tr></thead>
+          <tbody id="pac-tbody">
+            <tr><td>Fernanda Costa</td><td>fernanda@email.com</td><td>Rinoplastia Primária</td><td>Dr. Bervian</td><td>08/07/2026</td><td><span class="badge b-pre_op">PRÉ-OP</span></td></tr>
+            <tr><td>Lucas Mendes</td><td>lucas@email.com</td><td>Abdominoplastia</td><td>Dr. Larsen</td><td>15/07/2026</td><td><span class="badge b-pre_op">PRÉ-OP</span></td></tr>
+            <tr><td>Ana Paula Rodrigues</td><td>anapaula@email.com</td><td>Mamoplastia</td><td>Dr. Larsen</td><td>22/07/2026</td><td><span class="badge b-pre_op">PRÉ-OP</span></td></tr>
+            <tr><td>Roberto Alves</td><td>roberto@email.com</td><td>Rinoplastia Secundária</td><td>Dr. Bervian</td><td>15/06/2026</td><td><span class="badge b-pos_op">PÓS-OP</span></td></tr>
+            <tr><td>Camila Torres</td><td>camila@email.com</td><td>Ritidoplastia</td><td>Dr. Bervian</td><td>10/06/2026</td><td><span class="badge b-alta">ALTA</span></td></tr>
+            <tr><td>Sandra Freitas</td><td>sandra@email.com</td><td>Blefaroplastia</td><td>Dr. Bervian</td><td>05/06/2026</td><td><span class="badge b-alta">ALTA</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── MENSAGENS ── -->
+    <div class="page" id="page-mensagens">
+      <div class="tabs">
+        <div class="tab active" onclick="swTab(this,'tp-pendentes')">PENDENTES&nbsp;<span style="background:var(--err);color:#fff;font-size:8px;padding:1px 5px;border-radius:10px" id="tab-badge">2</span></div>
+        <div class="tab" onclick="swTab(this,'tp-historico')">HISTÓRICO</div>
+        <div class="tab" onclick="swTab(this,'tp-chat')">CHAT AO VIVO</div>
+      </div>
+      <div class="tab-pane active" id="tp-pendentes">
+        <div class="apv-card risco" id="apv-1">
+          <div class="apv-head">
+            <div><div class="apv-patient">Fernanda Costa</div><div class="apv-time">Rinoplastia Primária · há 23 min</div></div>
+            <span class="sent-badge sb-risco">RISCO</span>
+          </div>
+          <div class="apv-label">MENSAGEM DA PACIENTE</div>
+          <div class="apv-bubble">Estou com muito medo da cirurgia e não sei se quero fazer mais. Será que está tudo bem querer desistir agora?</div>
+          <div class="apv-label" style="margin-top:10px">SUGESTÃO DA IA — edite antes de aprovar</div>
+          <textarea class="apv-textarea" rows="4" id="ai1">Fernanda, é completamente normal sentir esse tipo de dúvida antes de um procedimento cirúrgico. Seus sentimentos são válidos e muito compreensíveis. Nossa equipe está aqui para apoiá-la em todas as fases. Gostaria de conversar diretamente com o Dr. Bervian sobre suas preocupações? Ele pode esclarecer tudo o que você precisar com cuidado e atenção.</textarea>
+          <div class="apv-btns">
+            <button class="btn-ok" onclick="approveMsg('apv-1',1)">✓ APROVAR E ENVIAR</button>
+            <button class="btn-no" onclick="discardMsg('apv-1',1)">✗ DESCARTAR</button>
+          </div>
+        </div>
+        <div class="apv-card" id="apv-2">
+          <div class="apv-head">
+            <div><div class="apv-patient">Lucas Mendes</div><div class="apv-time">Abdominoplastia · há 1h 12min</div></div>
+            <span class="sent-badge sb-neu">NEUTRO</span>
+          </div>
+          <div class="apv-label">MENSAGEM DO PACIENTE</div>
+          <div class="apv-bubble">Posso tomar meu remédio de pressão normalmente na manhã da cirurgia?</div>
+          <div class="apv-label" style="margin-top:10px">SUGESTÃO DA IA — edite antes de aprovar</div>
+          <textarea class="apv-textarea" rows="4" id="ai2">Lucas, medicamentos de uso contínuo como anti-hipertensivos geralmente devem ser mantidos, inclusive na manhã da cirurgia, com apenas um pequeno gole d'água. Porém, esta decisão precisa ser confirmada com o Dr. Larsen e o anestesista responsável. Vou acionar nossa equipe para que entrem em contato com você ainda hoje.</textarea>
+          <div class="apv-btns">
+            <button class="btn-ok" onclick="approveMsg('apv-2',2)">✓ APROVAR E ENVIAR</button>
+            <button class="btn-no" onclick="discardMsg('apv-2',2)">✗ DESCARTAR</button>
+          </div>
+        </div>
+        <div id="empty-pendentes" style="display:none" class="empty-state">
+          <div style="text-align:center;padding:60px;color:var(--muted)">
+            <div style="font-size:32px;margin-bottom:12px">✓</div>
+            <div style="font-size:13px">Nenhuma mensagem pendente de aprovação.</div>
+          </div>
+        </div>
+      </div>
+      <div class="tab-pane" id="tp-historico">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>PACIENTE</th><th>MENSAGEM</th><th>SENTIMENTO</th><th>TIPO DE RESPOSTA</th><th>DATA/HORA</th></tr></thead>
+            <tbody>
+              <tr><td>Fernanda Costa</td><td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Qual o jejum necessário antes da cirurgia?</td><td><span class="sent-badge sb-neu">NEUTRO</span></td><td style="font-size:11px;color:#81C784">IA automática</td><td>25/06 14:32</td></tr>
+              <tr><td>Fernanda Costa</td><td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Posso usar batom no dia da cirurgia?</td><td><span class="sent-badge sb-neu">NEUTRO</span></td><td style="font-size:11px;color:#81C784">IA automática</td><td>24/06 09:15</td></tr>
+              <tr><td>Lucas Mendes</td><td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Quando saberei o horário exato da cirurgia?</td><td><span class="sent-badge sb-pos">POSITIVO</span></td><td style="font-size:11px;color:#90CAF9">Humano (aprovado)</td><td>23/06 16:44</td></tr>
+              <tr><td>Roberto Alves</td><td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">O resultado ficou incrível! Muito obrigado</td><td><span class="sent-badge sb-pos">POSITIVO</span></td><td style="font-size:11px;color:#81C784">IA automática</td><td>22/06 11:20</td></tr>
+              <tr><td>Camila Torres</td><td style="max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Quando posso voltar a praticar exercícios?</td><td><span class="sent-badge sb-neu">NEUTRO</span></td><td style="font-size:11px;color:#81C784">IA automática</td><td>20/06 08:55</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-pane" id="tp-chat">
+        <div style="margin-bottom:12px;font-size:11px;color:var(--muted)">Simulação do chat como visto pelo admin — conversando com Fernanda Costa.</div>
+        <div class="chat-wrap">
+          <div class="chat-msgs" id="chat-msgs">
+            <div class="msg-row"><div><div class="msg-sender">Clínica Bervian & Larsen</div><div class="bubble clinic">Olá Fernanda! Seja bem-vinda ao seu espaço de comunicação. Estamos aqui para acompanhá-la em toda a jornada.</div></div></div>
+            <div class="msg-row right"><div><div class="msg-sender" style="text-align:right">Fernanda Costa</div><div class="bubble patient">Qual o jejum que devo fazer antes da cirurgia?</div></div></div>
+            <div class="msg-row"><div><div class="msg-sender">IA Ápice</div><div class="bubble clinic">O jejum para sua rinoplastia é de 8 horas para sólidos e 2 horas para líquidos claros. Não consuma álcool nas 72h anteriores. Isso é essencial para sua segurança durante a anestesia.</div></div></div>
+          </div>
+          <div class="typing" id="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span style="font-size:10px;color:var(--muted);margin-left:6px">IA digitando...</span></div>
+          <div class="chat-input-row">
+            <input class="chat-inp" id="chat-inp" placeholder="Simule uma mensagem da paciente..." onkeydown="if(event.key==='Enter')sendChat()">
+            <button class="chat-send" onclick="sendChat()">ENVIAR</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── PROCEDIMENTOS ── -->
+    <div class="page" id="page-procedimentos">
+      <div id="proc-list">
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Rinoplastia Primária</div><div class="proc-cat">FACIAL</div></div><div class="proc-right"><div class="proc-val">R$ 28.500</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">3h</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Geral</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">1 noite</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">14 dias de repouso</div></div>
+            <div class="pd-item span2-g"><div class="pd-label">PRÉ-OPERATÓRIO</div><div class="pd-val">Jejum de 8h. Não usar aspirina ou anti-inflamatórios por 15 dias. Não fumar por 30 dias antes da cirurgia.</div></div>
+            <div class="pd-item span2-g"><div class="pd-label">PÓS-OPERATÓRIO</div><div class="pd-val">Repouso de cabeça elevada por 72h. Curativo nasal por 10 dias. Retorno em 7 e 30 dias.</div></div>
+          </div>
+        </div>
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Abdominoplastia</div><div class="proc-cat">CORPORAL</div></div><div class="proc-right"><div class="proc-val">R$ 35.000</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">4h</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Geral</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">2 noites</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">30 dias repouso relativo</div></div>
+            <div class="pd-item span2-g"><div class="pd-label">DESCRIÇÃO</div><div class="pd-val">Remoção de excesso de pele e gordura abdominal com fortalecimento da musculatura. Cicatriz horizontal discreta.</div></div>
+          </div>
+        </div>
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Mamoplastia de Aumento</div><div class="proc-cat">CORPORAL</div></div><div class="proc-right"><div class="proc-val">R$ 32.000</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">2h</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Geral</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">1 noite</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">21 dias</div></div>
+          </div>
+        </div>
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Blefaroplastia</div><div class="proc-cat">FACIAL</div></div><div class="proc-right"><div class="proc-val">R$ 18.000</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">1h 30min</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Local + sedação</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">Ambulatorial</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">10 dias</div></div>
+          </div>
+        </div>
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Ritidoplastia</div><div class="proc-cat">FACIAL</div></div><div class="proc-right"><div class="proc-val">R$ 42.000</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">4h</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Geral</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">1 noite</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">30 dias</div></div>
+          </div>
+        </div>
+        <div class="proc-item" onclick="toggleProc(this)">
+          <div class="proc-row"><div><div class="proc-name">Lipoaspiração</div><div class="proc-cat">CORPORAL</div></div><div class="proc-right"><div class="proc-val">R$ 22.000</div><div class="proc-toggle">▾ detalhes</div></div></div>
+          <div class="proc-detail">
+            <div class="pd-item"><div class="pd-label">DURAÇÃO</div><div class="pd-val">2h 30min</div></div>
+            <div class="pd-item"><div class="pd-label">ANESTESIA</div><div class="pd-val">Geral ou sedação</div></div>
+            <div class="pd-item"><div class="pd-label">INTERNAÇÃO</div><div class="pd-val">Ambulatorial ou 1 noite</div></div>
+            <div class="pd-item"><div class="pd-label">RECUPERAÇÃO</div><div class="pd-val">14 dias</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── HOSPITAIS ── -->
+    <div class="page" id="page-hospitais">
+      <div class="card-grid">
+        <div class="info-card gold"><h3>Hospital Moinhos de Vento</h3><div class="sub">HOSPITAL GERAL DE ALTA COMPLEXIDADE</div><p>Rua Ramiro Barcelos, 910</p><p>Moinhos de Vento · Porto Alegre/RS</p><p>(51) 3314-3434</p><span class="info-tag">CREDENCIADO</span></div>
+        <div class="info-card gold"><h3>Hospital São Lucas PUCRS</h3><div class="sub">HOSPITAL UNIVERSITÁRIO</div><p>Av. Ipiranga, 6690</p><p>Jardim Botânico · Porto Alegre/RS</p><p>(51) 3320-3000</p><span class="info-tag">CREDENCIADO</span></div>
+        <div class="info-card gold"><h3>Venâncio Day Hospital</h3><div class="sub">DAY HOSPITAL CIRÚRGICO</div><p>Rua Venâncio Aires, 240</p><p>Floresta · Porto Alegre/RS</p><p>(51) 3222-1122</p><span class="info-tag">CREDENCIADO</span></div>
+      </div>
+    </div>
+
+    <!-- ── MÉDICOS ── -->
+    <div class="page" id="page-medicos">
+      <div class="card-grid" style="grid-template-columns:1fr 1fr">
+        <div class="info-card gold">
+          <h3>Dr. Fabrício Bervian</h3>
+          <div class="sub">CIRURGIA PLÁSTICA — ESPECIALIDADE FACIAL</div>
+          <p>CRM/RS 22345 · MEMBRO SBCP</p>
+          <p>fabricio@bervianlarsen.com.br</p>
+          <p style="margin-top:10px;font-size:11px;color:var(--cream)">Rinoplastia · Blefaroplastia · Ritidoplastia · Otoplastia</p>
+          <span class="info-tag">SÓCIO-FUNDADOR</span>
+        </div>
+        <div class="info-card gold">
+          <h3>Dr. Guilherme Larsen</h3>
+          <div class="sub">CIRURGIA PLÁSTICA — ESPECIALIDADE CORPORAL</div>
+          <p>CRM/RS 23456 · MEMBRO SBCP</p>
+          <p>guilherme@bervianlarsen.com.br</p>
+          <p style="margin-top:10px;font-size:11px;color:var(--cream)">Abdominoplastia · Mamoplastia · Lipoaspiração · Gluteoplastia</p>
+          <span class="info-tag">SÓCIO-FUNDADOR</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── JORNADA (APP PACIENTE) ── -->
+    <div class="page" id="page-jornada">
+      <div style="max-width:480px">
+        <div class="journey-progress">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-size:11px;color:var(--cream)">Fernanda Costa — Rinoplastia Primária</div>
+            <div style="font-size:11px;color:var(--gold-light)" id="jp-pct">50%</div>
+          </div>
+          <div class="jp-bar"><div class="jp-fill" id="jp-bar" style="width:50%"></div></div>
+          <div class="jp-txt">4 DE 8 ETAPAS CONCLUÍDAS · CIRURGIA EM 12 DIAS</div>
+        </div>
+        <div style="background:rgba(139,105,20,.1);border:1px solid rgba(139,105,20,.2);padding:12px 14px;margin-bottom:14px;font-size:11px;color:var(--cream)">
+          <span style="font-size:8px;letter-spacing:2px;color:var(--gold-light);display:block;margin-bottom:4px">LEMBRETE</span>
+          08/07/2026 às 07:30h · Dr. Bervian · Hospital Moinhos de Vento
+        </div>
+        <div class="step-list" id="step-list">
+          <div class="step done" onclick="toggleStep(this)">
+            <div class="step-ico done">✅</div>
+            <div class="step-info"><h4>Consulta realizada</h4><p>15/05/2026 · Concluído</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Consulta de avaliação com Dr. Bervian realizada com sucesso. Procedimento aprovado e data cirúrgica em definição.</div></div>
+          <div class="step done" onclick="toggleStep(this)">
+            <div class="step-ico done">✅</div>
+            <div class="step-info"><h4>Procedimento confirmado</h4><p>20/05/2026 · Concluído</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Contrato assinado e data cirúrgica confirmada para 08/07/2026.</div></div>
+          <div class="step done" onclick="toggleStep(this)">
+            <div class="step-ico done">✅</div>
+            <div class="step-info"><h4>Exames pré-operatórios</h4><p>28/05/2026 · Concluído</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Hemograma, coagulograma, ECG e avaliação cardiológica — todos dentro dos parâmetros normais.</div></div>
+          <div class="step done" onclick="toggleStep(this)">
+            <div class="step-ico done">✅</div>
+            <div class="step-info"><h4>Documentos assinados</h4><p>01/06/2026 · Concluído</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Termos de consentimento cirúrgico, anestésico e fotográfico assinados.</div></div>
+          <div class="step active-step" onclick="toggleStep(this)">
+            <div class="step-ico active-step">🔵</div>
+            <div class="step-info"><h4>Preparação pré-cirúrgica</h4><p>Em andamento · Checklist incompleto</p></div>
+          </div>
+          <div class="step-expand open">
+            <div class="step-detail">Siga todas as orientações pré-operatórias. Complete o checklist antes da cirurgia.
+              <div class="step-detail-checklist" id="checklist">
+                <div class="ck-item checked" onclick="toggleCk(this)"><div class="ck-box">✓</div><span>Parar aspirina/anti-inflamatórios (15 dias antes)</span></div>
+                <div class="ck-item checked" onclick="toggleCk(this)"><div class="ck-box">✓</div><span>Parar de fumar (30 dias antes)</span></div>
+                <div class="ck-item checked" onclick="toggleCk(this)"><div class="ck-box">✓</div><span>Exames entregues na clínica</span></div>
+                <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><span>Comprar medicamentos da receita pós-op</span></div>
+                <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><span>Preparar roupas folgadas para o dia</span></div>
+                <div class="ck-item" onclick="toggleCk(this)"><div class="ck-box"></div><span>Confirmar acompanhante para o dia</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="step" onclick="toggleStep(this)">
+            <div class="step-ico pending">⬜</div>
+            <div class="step-info"><h4>Dia da cirurgia</h4><p>08/07/2026 · Aguardando</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Chegue ao hospital com 30 minutos de antecedência. Não coma ou beba nada nas últimas 8 horas.</div></div>
+          <div class="step" onclick="toggleStep(this)">
+            <div class="step-ico pending">⬜</div>
+            <div class="step-info"><h4>Pós-operatório imediato</h4><p>Aguardando</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Documentos pós-operatórios serão liberados automaticamente após a cirurgia.</div></div>
+          <div class="step" onclick="toggleStep(this)">
+            <div class="step-ico pending">⬜</div>
+            <div class="step-info"><h4>Alta e recuperação</h4><p>Aguardando</p></div>
+          </div>
+          <div class="step-expand"><div class="step-detail">Orientações de recuperação e retornos serão disponibilizadas após a alta hospitalar.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════
+     GUIDE PANEL
+══════════════════════════════════ -->
+<div id="guide" style="display:none">
+  <div id="guide-header">
+    <span id="guide-step-num">PASSO 1 DE 12</span>
+    <span id="guide-section-tag">LOGIN</span>
+  </div>
+  <div id="guide-body">
+    <div id="guide-step-title">Bem-vindo à Plataforma Ápice</div>
+    <div id="guide-step-desc">Este walkthrough guiado mostrará todos os recursos da plataforma, passo a passo. Clique em <strong>PRÓXIMO</strong> para avançar ou interaja com o elemento destacado.</div>
+    <div id="guide-hint"></div>
+    <div id="guide-actions">
+      <div id="guide-progress"></div>
+      <div id="guide-btns">
+        <button class="g-btn g-btn-skip" onclick="endGuide()">FECHAR GUIA</button>
+        <button class="g-btn g-btn-next" id="g-next" onclick="nextStep()">PRÓXIMO →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA & STATE
+// ══════════════════════════════════════════════
+const USERS = {
+  'admin@bervianlarsen.com.br':    {s:'apice2026',n:'Administrador Ápice',r:'clinic_admin'},
+  'fabricio@bervianlarsen.com.br': {s:'apice2026',n:'Dr. Fabrício Bervian',r:'medico'},
+  'fernanda@email.com':            {s:'apice2026',n:'Fernanda Costa',r:'paciente'},
+};
+let pendingCount = 2;
+let currentPage = 'dashboard';
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+function toast(msg, ms=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', ms);
+}
+
+// ══════════════════════════════════════════════
+// TOPBAR CONFIG PER PAGE
+// ══════════════════════════════════════════════
+const PAGE_CONFIG = {
+  dashboard:     {title:'Dashboard',          sub:'JUNHO 2026 · CLÍNICA BERVIAN & LARSEN', actions:''},
+  pipeline:      {title:'Pipeline de Leads',  sub:'FUNIL DE VENDAS',  actions:'<button class="btn-primary" onclick="openM(\'m-lead\')">+ NOVO LEAD</button>'},
+  cirurgias:     {title:'Cirurgias',          sub:'AGENDAMENTO E GESTÃO OPERACIONAL', actions:'<button class="btn-primary" onclick="openM(\'m-cirurgia\')">+ NOVA CIRURGIA</button>'},
+  pacientes:     {title:'Pacientes',          sub:'CADASTRO DE PACIENTES', actions:'<input class="search" placeholder="Buscar paciente..." oninput="filterTbl(this,\'pac-tbody\')"><button class="btn-primary" onclick="openM(\'m-paciente\')" style="margin-left:8px">+ NOVO PACIENTE</button>'},
+  mensagens:     {title:'Mensagens',          sub:'FILA DE APROVAÇÃO + HISTÓRICO', actions:''},
+  procedimentos: {title:'Procedimentos',      sub:'CATÁLOGO CLÍNICO', actions:'<button class="btn-primary" onclick="toast(\'Formulário de novo procedimento\')">+ NOVO PROCEDIMENTO</button>'},
+  hospitais:     {title:'Hospitais Parceiros',sub:'UNIDADES CREDENCIADAS', actions:'<button class="btn-primary" onclick="toast(\'Formulário de novo hospital\')">+ NOVO HOSPITAL</button>'},
+  medicos:       {title:'Corpo Clínico',      sub:'MÉDICOS DA CLÍNICA', actions:'<button class="btn-primary" onclick="toast(\'Formulário de novo médico\')">+ NOVO MÉDICO</button>'},
+  jornada:       {title:'App do Paciente',    sub:'JORNADA — FERNANDA COSTA', actions:''},
+};
+
+function goPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if (el) el.classList.add('active');
+  currentPage = id;
+  const cfg = PAGE_CONFIG[id] || {};
+  document.getElementById('tb-title').textContent = cfg.title || id;
+  document.getElementById('tb-sub').textContent = cfg.sub || '';
+  document.getElementById('tb-actions').innerHTML = cfg.actions || '';
+  if (id === 'dashboard') drawCharts();
+}
+
+// ══════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ══════════════════════════════════════════════
+function setLogin(email) {
+  document.getElementById('l-email').value = email;
+  document.getElementById('l-senha').value = 'apice2026';
+}
+
+function doLogin() {
+  const email = document.getElementById('l-email').value.trim();
+  const senha = document.getElementById('l-senha').value.trim();
+  const u = USERS[email];
+  if (!u || u.s !== senha) { toast('E-mail ou senha inválidos'); return; }
+  document.getElementById('su-name').textContent = u.n;
+  document.getElementById('su-role').textContent = u.r + ' · Bervian & Larsen';
+  document.getElementById('login-cover').classList.add('hidden');
+  goPage('dashboard', document.querySelector('.nav-item[data-page="dashboard"]'));
+  drawCharts();
+  setTimeout(() => startGuide(), 400);
+}
+
+function doLogout() {
+  document.getElementById('login-cover').classList.remove('hidden');
+  endGuide();
+  toast('Sessão encerrada com segurança');
+}
+
+// ══════════════════════════════════════════════
+// CHARTS
+// ══════════════════════════════════════════════
+function drawCharts() {
+  const c1 = [{m:'Jan',v:4},{m:'Fev',v:6},{m:'Mar',v:8},{m:'Abr',v:6},{m:'Mai',v:6},{m:'Jun',v:7}];
+  const c2 = [{m:'Jan',v:95},{m:'Fev',v:130},{m:'Mar',v:175},{m:'Abr',v:142},{m:'Mai',v:148},{m:'Jun',v:158}];
+  mkChart('c1', c1, 8, v => v);
+  mkChart('c2', c2, 175, v => 'R$'+v+'k');
+}
+function mkChart(id, data, max, fmt) {
+  const el = document.getElementById(id); if (!el) return;
+  el.innerHTML = data.map(d => {
+    const h = Math.round((d.v/max)*100);
+    return `<div class="bc"><div class="bv">${fmt(d.v)}</div><div class="b" style="height:${h}%"></div><div class="bl">${d.m}</div></div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════
+// MODALS
+// ══════════════════════════════════════════════
+function openM(id) { document.getElementById(id).classList.add('open'); }
+function closeM(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-bg').forEach(bg => {
+  bg.addEventListener('click', e => { if (e.target === bg) bg.classList.remove('open'); });
+});
+
+function saveCirurgia() {
+  closeM('m-cirurgia');
+  const tbody = document.getElementById('cir-tbody');
+  const row = document.createElement('tr');
+  row.innerHTML = '<td>Nova Paciente</td><td>Rinoplastia Primária</td><td>Dr. Bervian</td><td>20/07/2026</td><td>07:30h</td><td>Moinhos de Vento</td><td>R$ 28.500</td><td><span class="badge b-agendada">AGENDADA</span></td>';
+  row.style.background = 'rgba(139,105,20,.06)';
+  tbody.insertBefore(row, tbody.firstChild);
+  toast('✓ Cirurgia agendada com sucesso');
+  setTimeout(() => row.style.background = '', 2000);
+}
+
+function saveLead() {
+  const nome = document.getElementById('lead-nome').value || 'Novo Lead';
+  closeM('m-lead');
+  const col = document.getElementById('col-lead');
+  const card = document.createElement('div');
+  card.className = 'k-card';
+  card.style.background = 'rgba(139,105,20,.08)';
+  card.innerHTML = `<div class="k-name">${nome}</div><div class="k-proc">Rinoplastia Primária</div><div class="k-val">R$ 28.500</div><div class="k-meta">Hoje · novo</div><div class="k-btns"><button class="k-btn primary" onclick="advanceLead(this.closest('.k-card'),'${nome}','Consulta')">AVANÇAR →</button></div>`;
+  col.appendChild(card);
+  updCounts();
+  toast('✓ Lead ' + nome + ' criado');
+  setTimeout(() => card.style.background = '', 2000);
+}
+
+function savePaciente() {
+  closeM('m-paciente');
+  const tbody = document.getElementById('pac-tbody');
+  const row = document.createElement('tr');
+  row.innerHTML = '<td>Novo Paciente</td><td>novo@email.com</td><td>Rinoplastia Primária</td><td>Dr. Bervian</td><td>—</td><td><span class="badge b-pre_op">PRÉ-OP</span></td>';
+  row.style.background = 'rgba(139,105,20,.06)';
+  tbody.insertBefore(row, tbody.firstChild);
+  toast('✓ Paciente cadastrado. Jornada criada automaticamente.');
+  setTimeout(() => row.style.background = '', 2000);
+}
+
+// ══════════════════════════════════════════════
+// PIPELINE
+// ══════════════════════════════════════════════
+function advanceLead(card, nome, nextStage) {
+  const stages = {Lead:'col-lead',Consulta:'col-consulta',Proposta:'col-proposta',Fechamento:'col-fechamento'};
+  const cur = card.closest('.k-col');
+  const stageKeys = Object.keys(stages);
+  const curKey = stageKeys.find(k => stages[k] === cur.id) || 'Lead';
+  const nextKey = stageKeys[stageKeys.indexOf(curKey) + 1] || 'Fechamento';
+  const destCol = document.getElementById(stages[nextKey]);
+  const clone = card.cloneNode(true);
+  clone.style.borderLeft = nextKey === 'Fechamento' ? '2px solid var(--gold)' : '2px solid transparent';
+  const btnsDiv = clone.querySelector('.k-btns');
+  if (nextKey === 'Fechamento') {
+    btnsDiv.innerHTML = `<span style="font-size:9px;color:#81C784">✓ Fechado</span>`;
+    const meta = clone.querySelector('.k-meta');
+    if (meta) { meta.style.color = '#81C784'; meta.textContent = '✓ Negócio fechado'; }
+  } else {
+    btnsDiv.querySelectorAll('button').forEach(b => {
+      if (b.textContent.includes('AVANÇAR')) {
+        b.onclick = () => advanceLead(clone, nome, '');
+        b.textContent = 'AVANÇAR →';
+      }
+    });
+  }
+  cur.removeChild(card);
+  destCol.appendChild(clone);
+  updCounts();
+  toast(`✓ ${nome} → ${nextKey}`);
+}
+
+function archiveLead(card) {
+  card.style.opacity = '0';
+  card.style.transition = 'opacity .3s';
+  setTimeout(() => { card.remove(); updCounts(); }, 300);
+  toast('Lead arquivado');
+}
+
+function closeLead(card, nome) { advanceLead(card, nome, ''); }
+
+function updCounts() {
+  ['lead','consulta','proposta','fechamento'].forEach(s => {
+    const col = document.getElementById('col-'+s);
+    if (!col) return;
+    const count = col.querySelectorAll('.k-card').length;
+    const el = document.getElementById('cnt-'+s);
+    if (el) el.textContent = count;
+  });
+}
+
+// ══════════════════════════════════════════════
+// MENSAGENS
+// ══════════════════════════════════════════════
+function swTab(el, paneId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById(paneId).classList.add('active');
+}
+
+function approveMsg(id, n) {
+  const card = document.getElementById(id);
+  card.style.transition = 'opacity .3s';
+  card.style.opacity = '0';
+  setTimeout(() => {
+    card.remove();
+    pendingCount = Math.max(0, pendingCount - 1);
+    updBadge();
+    toast(`✓ Resposta aprovada e enviada ao paciente`);
+    if (pendingCount === 0) document.getElementById('empty-pendentes').style.display = 'block';
+  }, 300);
+}
+
+function discardMsg(id, n) {
+  const card = document.getElementById(id);
+  card.style.transition = 'opacity .3s';
+  card.style.opacity = '0';
+  setTimeout(() => {
+    card.remove();
+    pendingCount = Math.max(0, pendingCount - 1);
+    updBadge();
+    toast('Resposta descartada — será respondida manualmente');
+    if (pendingCount === 0) document.getElementById('empty-pendentes').style.display = 'block';
+  }, 300);
+}
+
+function updBadge() {
+  const b1 = document.getElementById('badge-msgs');
+  const b2 = document.getElementById('tab-badge');
+  if (pendingCount > 0) { b1.textContent = pendingCount; b2.textContent = pendingCount; }
+  else { b1.style.display = 'none'; b2.style.display = 'none'; }
+}
+
+// ══════════════════════════════════════════════
+// CHAT
+// ══════════════════════════════════════════════
+const aiReplies = [
+  'Entendo sua preocupação, Fernanda. Nossa equipe está aqui para apoiá-la em toda a jornada. Fique tranquila!',
+  'Essa é uma dúvida muito comum antes da cirurgia. Para garantir sua segurança, recomendamos seguir as orientações do checklist.',
+  'Dr. Bervian está ciente e entrará em contato assim que possível. Você está em boas mãos!',
+  'Anotado! Vou encaminhar sua mensagem para a equipe. Responderemos em breve.',
+  'Perfeita pergunta! O jejum é de 8h para sólidos e 2h para líquidos claros. Não consuma álcool nas 72h anteriores.',
+  'Para qualquer urgência, ligue diretamente para a clínica: (51) 3000-0000. Estamos disponíveis 24h.',
+];
+let aiIdx = 0;
+
+function sendChat() {
+  const inp = document.getElementById('chat-inp');
+  const msg = inp.value.trim(); if (!msg) return;
+  const c = document.getElementById('chat-msgs');
+  c.innerHTML += `<div class="msg-row right"><div><div class="msg-sender" style="text-align:right">Fernanda Costa</div><div class="bubble patient">${msg}</div></div></div>`;
+  inp.value = '';
+  c.scrollTop = c.scrollHeight;
+  const typ = document.getElementById('typing');
+  typ.classList.add('show');
+  setTimeout(() => {
+    typ.classList.remove('show');
+    const r = aiReplies[aiIdx++ % aiReplies.length];
+    c.innerHTML += `<div class="msg-row"><div><div class="msg-sender">IA Ápice</div><div class="bubble clinic">${r}</div></div></div>`;
+    c.scrollTop = c.scrollHeight;
+  }, 1200);
+}
+
+// ══════════════════════════════════════════════
+// PROCEDIMENTOS
+// ══════════════════════════════════════════════
+function toggleProc(item) {
+  const det = item.querySelector('.proc-detail');
+  const tog = item.querySelector('.proc-toggle');
+  det.classList.toggle('open');
+  if (tog) tog.textContent = det.classList.contains('open') ? '▴ fechar' : '▾ detalhes';
+}
+
+// ══════════════════════════════════════════════
+// FILTRO
+// ══════════════════════════════════════════════
+function filterTbl(inp, id) {
+  const q = inp.value.toLowerCase();
+  document.querySelectorAll('#'+id+' tr').forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+// ══════════════════════════════════════════════
+// JORNADA (CHECKLIST)
+// ══════════════════════════════════════════════
+function toggleStep(stepEl) {
+  const expand = stepEl.nextElementSibling;
+  if (expand && expand.classList.contains('step-expand')) {
+    expand.classList.toggle('open');
+  }
+}
+
+function toggleCk(item) {
+  item.classList.toggle('checked');
+  updateJornadaProgress();
+}
+
+function updateJornadaProgress() {
+  const items = document.querySelectorAll('.ck-item');
+  const done = document.querySelectorAll('.ck-item.checked').length;
+  const donePct = Math.round(((3 + (done/items.length)) / 8) * 100); // 3 done + partial step 5
+  const bar = document.getElementById('jp-bar');
+  const pct = document.getElementById('jp-pct');
+  if (bar) bar.style.width = donePct + '%';
+  if (pct) pct.textContent = donePct + '%';
+}
+
+// ══════════════════════════════════════════════
+// WALKTHROUGH GUIDE
+// ══════════════════════════════════════════════
+const STEPS = [
+  {
+    page: 'dashboard', nav: 'dashboard', hl: null,
+    title: 'Dashboard — Visão Geral da Clínica',
+    desc: 'O dashboard apresenta os KPIs em tempo real: atendimentos, receita, leads, NPS e taxa de conversão. Os gráficos mostram a evolução dos últimos 6 meses. Role para ver a tabela de próximas cirurgias.',
+    hint: '→ Explore os KPIs e gráficos acima',
+    btn: 'IR PARA PIPELINE →',
+  },
+  {
+    page: 'pipeline', nav: 'pipeline', hl: 'kanban',
+    title: 'Pipeline — Funil de Leads',
+    desc: 'Gerencie todos os leads em 4 estágios: Lead → Consulta → Proposta → Fechamento. Cada card mostra nome, procedimento, valor e origem. Clique em <strong>AVANÇAR</strong> para mover um lead para a próxima etapa.',
+    hint: '→ Clique em AVANÇAR em qualquer lead para movê-lo',
+    btn: 'VER CIRURGIAS →',
+  },
+  {
+    page: 'cirurgias', nav: 'cirurgias', hl: 'cir-tbody',
+    title: 'Cirurgias — Agenda Operacional',
+    desc: 'Visualize todas as cirurgias agendadas e realizadas. Filtre por médico, data ou status. Cada linha mostra paciente, procedimento, médico, hospital e valor.',
+    hint: '→ Clique em "+ NOVA CIRURGIA" no topo para agendar',
+    btn: 'AGENDAR NOVA →',
+    action: () => openM('m-cirurgia'),
+    actionBtn: 'ABRIR FORMULÁRIO',
+  },
+  {
+    page: 'cirurgias', nav: 'cirurgias', hl: 'm-cirurgia',
+    title: 'Formulário de Nova Cirurgia',
+    desc: 'Preencha todos os campos: paciente, médico, procedimento, hospital, data, horário e valor. Após salvar, a cirurgia aparece na tabela e o sistema atualiza o status do paciente automaticamente.',
+    hint: '→ Preencha e clique em SALVAR, ou clique em PRÓXIMO',
+    btn: 'SALVAR E VER PACIENTES →',
+    action: () => { closeM('m-cirurgia'); },
+  },
+  {
+    page: 'pacientes', nav: 'pacientes', hl: 'pac-tbody',
+    title: 'Pacientes — Gestão de Cadastros',
+    desc: 'Lista completa de pacientes com status (Pré-Op, Pós-Op, Alta). Use a busca para filtrar por nome, e-mail ou procedimento. Ao cadastrar um paciente e vinculá-lo a um procedimento, a jornada é criada automaticamente.',
+    hint: '→ Digite na caixa de busca para filtrar',
+    btn: 'VER MENSAGENS →',
+  },
+  {
+    page: 'mensagens', nav: 'mensagens', hl: 'apv-1',
+    title: 'Mensagens — Fila de Aprovação IA',
+    desc: 'A IA responde automaticamente perguntas simples. Mensagens críticas (risco, dúvidas médicas) entram na fila de aprovação. O admin lê, edita se necessário, e aprova ou descarta cada resposta.',
+    hint: '→ Edite o texto da IA e clique em APROVAR E ENVIAR',
+    btn: 'APROVAR MENSAGEM →',
+  },
+  {
+    page: 'mensagens', nav: 'mensagens', hl: 'tp-chat',
+    title: 'Chat ao Vivo',
+    desc: 'Simule o chat em tempo real com a paciente. A IA responde com base no contexto clínico. Mensagens com palavras-chave críticas ("desistir", "dor intensa", "medo") são sinalizadas como RISCO e entram na fila.',
+    hint: '→ Clique na aba "CHAT AO VIVO" e envie uma mensagem',
+    btn: 'VER PROCEDIMENTOS →',
+    action: () => {
+      swTab(document.querySelectorAll('.tab')[2], 'tp-chat');
+    },
+  },
+  {
+    page: 'procedimentos', nav: 'procedimentos', hl: 'proc-list',
+    title: 'Procedimentos — Catálogo Clínico',
+    desc: 'Todos os procedimentos da clínica com valor, duração, tipo de anestesia, internação, recuperação e orientações pré/pós-operatórias. Clique em qualquer procedimento para expandir os detalhes.',
+    hint: '→ Clique em "Rinoplastia Primária" para ver os detalhes',
+    btn: 'VER HOSPITAIS →',
+  },
+  {
+    page: 'hospitais', nav: 'hospitais', hl: null,
+    title: 'Hospitais — Unidades Credenciadas',
+    desc: '3 hospitais parceiros cadastrados em Porto Alegre: Hospital Moinhos de Vento, Hospital São Lucas PUCRS e Venâncio Day Hospital. Cada cirurgia é vinculada a um hospital.',
+    hint: '',
+    btn: 'VER MÉDICOS →',
+  },
+  {
+    page: 'medicos', nav: 'medicos', hl: null,
+    title: 'Corpo Clínico — Médicos',
+    desc: 'Dr. Fabrício Bervian (facial) e Dr. Guilherme Larsen (corporal), sócios-fundadores. Cada um tem sua especialidade, CRM e histórico de cirurgias. O sistema separa leads e pacientes por médico.',
+    hint: '',
+    btn: 'VER APP DO PACIENTE →',
+  },
+  {
+    page: 'jornada', nav: 'jornada', hl: 'step-list',
+    title: 'App do Paciente — Jornada',
+    desc: 'Esta é a visão da Fernanda no app mobile. Ela vê 8 etapas da jornada, com progresso visual. A etapa ativa (azul) mostra o checklist interativo. Clique em qualquer etapa para ver os detalhes.',
+    hint: '→ Clique nas etapas para expandir e marque os itens do checklist',
+    btn: 'CONCLUIR TOUR →',
+  },
+  {
+    page: 'jornada', nav: 'jornada', hl: 'checklist',
+    title: 'Checklist Interativo da Paciente',
+    desc: 'A Fernanda marca os itens conforme os conclui. A barra de progresso atualiza em tempo real. O sistema monitora automaticamente: se faltarem itens críticos em T-2h da cirurgia, uma notificação é enviada.',
+    hint: '→ Clique nos itens do checklist para marcá-los como concluídos',
+    btn: 'FINALIZAR WALKTHROUGH ✓',
+    last: true,
+  },
+];
+
+let step = 0;
+let hlEl = null;
+
+function startGuide() {
+  step = 0;
+  document.getElementById('guide').style.display = 'block';
+  renderStep();
+}
+
+function endGuide() {
+  document.getElementById('guide').style.display = 'none';
+  if (hlEl) { hlEl.classList.remove('hl'); hlEl = null; }
+}
+
+function nextStep() {
+  if (step < STEPS.length - 1) {
+    step++;
+    renderStep();
+  } else {
+    endGuide();
+    toast('✓ Walkthrough concluído! Explore livremente a plataforma.');
+  }
+}
+
+function renderStep() {
+  const s = STEPS[step];
+  // Remove old highlight
+  if (hlEl) { hlEl.classList.remove('hl'); hlEl = null; }
+
+  // Navigate if needed
+  if (s.page !== currentPage || s.nav) {
+    const navEl = document.querySelector(`.nav-item[data-page="${s.nav}"]`);
+    goPage(s.page, navEl);
+  }
+
+  // Run action if any
+  if (s.action) s.action();
+
+  // Highlight element
+  if (s.hl) {
+    setTimeout(() => {
+      const el = document.getElementById(s.hl);
+      if (el) { el.classList.add('hl'); hlEl = el; }
+    }, 200);
+  }
+
+  // Update UI
+  document.getElementById('guide-step-num').textContent = `PASSO ${step+1} DE ${STEPS.length}`;
+  document.getElementById('guide-section-tag').textContent = s.page.toUpperCase();
+  document.getElementById('guide-step-title').textContent = s.title;
+  document.getElementById('guide-step-desc').innerHTML = s.desc;
+  document.getElementById('guide-hint').textContent = s.hint;
+  document.getElementById('g-next').textContent = s.btn || 'PRÓXIMO →';
+  if (s.last) document.getElementById('g-next').style.background = 'var(--ok)';
+  else document.getElementById('g-next').style.background = 'var(--gold)';
+
+  // Dots
+  const prog = document.getElementById('guide-progress');
+  prog.innerHTML = STEPS.map((_, i) =>
+    `<div class="g-dot ${i < step ? 'done' : (i === step ? 'active' : '')}"></div>`
+  ).join('');
+
+  // Scroll highlight into view
+  if (s.hl) {
+    setTimeout(() => {
+      const el = document.getElementById(s.hl);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 350);
+  }
+}
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  drawCharts();
+});
+</script>
+</body>
+</html>

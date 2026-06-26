@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ápice — Dashboard Interativo</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#8B6914;--gold-l:#D4B87A;--ink:#0E0D0C;--ink2:#1A1918;
+  --card:#2A2820;--cream:#F7F2EA;--muted:#6A6458;--bdr:#2A2820;
+  --up:#66BB6A;--dn:#EF5350;
+}
+body{font-family:'Jost',sans-serif;background:var(--ink);color:var(--cream);min-height:100vh}
+h1,h2,h3{font-family:'Cormorant Garamond',serif;font-weight:400}
+
+/* ── HEADER ── */
+header{background:var(--ink2);border-bottom:1px solid var(--bdr);padding:18px 36px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--gold-l)}
+.clinic{font-size:9px;letter-spacing:3px;color:var(--muted)}
+.header-right{display:flex;gap:12px;align-items:center}
+.period-btn{padding:7px 14px;font-size:9px;letter-spacing:1.5px;border:1px solid var(--bdr);background:transparent;color:var(--muted);cursor:pointer;font-family:'Jost',sans-serif;transition:.15s}
+.period-btn:hover,.period-btn.active{border-color:var(--gold);color:var(--gold-l);background:rgba(139,105,20,.08)}
+.date-range{font-size:10px;color:var(--muted);padding:7px 12px;background:var(--card);border:1px solid var(--bdr)}
+
+/* ── LAYOUT ── */
+main{padding:28px 36px;max-width:1400px;margin:0 auto}
+
+/* ── KPI GRID ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.kpi{background:var(--card);padding:20px 18px;border-left:2px solid var(--bdr);position:relative;cursor:pointer;transition:.2s;user-select:none}
+.kpi:hover{border-left-color:var(--gold-l);background:rgba(42,40,32,.8)}
+.kpi.accent{border-left-color:var(--gold)}
+.kpi-label{font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:10px}
+.kpi-val{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--cream);transition:color .3s}
+.kpi-var{font-size:10px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.up{color:var(--up)}.dn{color:var(--dn)}.nt{color:var(--muted)}
+.kpi-sparkline{position:absolute;bottom:0;right:0;opacity:.3;display:flex;align-items:flex-end;gap:2px;padding:6px 8px}
+.spark{width:4px;background:var(--gold);border-radius:0;min-height:4px}
+.kpi-tooltip{display:none;position:absolute;top:-42px;left:0;background:var(--ink2);border:1px solid var(--gold);padding:6px 10px;font-size:10px;color:var(--cream);white-space:nowrap;z-index:10}
+.kpi:hover .kpi-tooltip{display:block}
+
+/* ── CHARTS SECTION ── */
+.charts-section{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:24px}
+.chart-card{background:var(--card);padding:22px}
+.chart-title{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:4px}
+.chart-subtitle{font-size:11px;color:var(--cream);margin-bottom:18px}
+.chart-tabs{display:flex;gap:0;margin-bottom:18px;border-bottom:1px solid var(--bdr)}
+.ct{padding:8px 16px;font-size:9px;letter-spacing:1.5px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.ct.active{color:var(--gold-l);border-bottom-color:var(--gold)}
+
+/* SVG Chart */
+.svg-wrap{width:100%;overflow:hidden}
+svg text{font-family:'Jost',sans-serif}
+
+/* Bar chart custom */
+.bar-group{display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px}
+.bar-seg-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:100%;gap:2px}
+.bar-b{width:100%;min-height:4px;transition:height .6s cubic-bezier(.4,0,.2,1);position:relative;cursor:pointer}
+.bar-b:hover::after{content:attr(data-tip);position:absolute;top:-28px;left:50%;transform:translateX(-50%);background:var(--ink2);border:1px solid var(--gold);padding:3px 8px;font-size:10px;color:var(--cream);white-space:nowrap;z-index:5}
+.bar-lbl{font-size:8px;color:var(--muted);text-align:center}
+.bar-val{font-size:9px;color:var(--gold-l)}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:24px}
+.donut-legend{display:flex;flex-direction:column;gap:8px;flex:1}
+.legend-item{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 0;transition:.15s}
+.legend-item:hover{opacity:.8}
+.legend-dot{width:10px;height:10px;border-radius:0;flex-shrink:0}
+.legend-name{font-size:11px;color:var(--cream)}
+.legend-val{margin-left:auto;font-size:11px;color:var(--gold-l)}
+.legend-pct{font-size:10px;color:var(--muted);margin-left:4px}
+
+/* Line chart */
+.line-chart-wrap{position:relative;height:140px;margin-bottom:8px}
+canvas#lineCanvas{position:absolute;top:0;left:0;width:100%;height:100%}
+.line-labels{display:flex;justify-content:space-between;padding:0 4px}
+.line-lbl{font-size:8px;color:var(--muted)}
+
+/* ── BOTTOM GRID ── */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── TABLE ── */
+.tbl-card{background:var(--card);padding:20px}
+.tbl-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.tbl-title{font-size:9px;letter-spacing:3px;color:var(--muted)}
+.tbl-badge{background:rgba(139,105,20,.2);border:1px solid rgba(139,105,20,.3);color:var(--gold-l);font-size:9px;padding:2px 8px}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:8px;letter-spacing:1.5px;color:var(--muted);padding:8px 10px;border-bottom:1px solid var(--bdr)}
+td{padding:10px 10px;font-size:11px;border-bottom:1px solid rgba(42,40,32,.5);transition:.15s}
+tr:hover td{background:rgba(255,255,255,.02)}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px}
+.dot-ok{background:var(--up)}.dot-warn{background:var(--gold)}.dot-err{background:var(--dn)}
+
+/* ── ACTIVITY FEED ── */
+.feed-card{background:var(--card);padding:20px;overflow-y:auto;max-height:360px}
+.feed-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(42,40,32,.5);cursor:default;transition:.15s}
+.feed-item:hover{background:rgba(255,255,255,.015);margin:0 -8px;padding:10px 8px}
+.feed-item:last-child{border-bottom:none}
+.feed-ico{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border-radius:0}
+.feed-ico.gold{background:rgba(139,105,20,.15)}
+.feed-ico.green{background:rgba(46,125,50,.15)}
+.feed-ico.blue{background:rgba(21,101,192,.15)}
+.feed-ico.red{background:rgba(192,57,43,.15)}
+.feed-body{flex:1}
+.feed-title{font-size:12px;color:var(--cream);margin-bottom:2px}
+.feed-sub{font-size:10px;color:var(--muted)}
+.feed-time{font-size:9px;color:var(--muted);flex-shrink:0;margin-top:2px}
+
+/* ── QUICK ACTIONS ── */
+.actions-row{display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.act-btn{background:var(--card);border:1px solid var(--bdr);color:var(--muted);padding:10px 16px;font-size:9px;letter-spacing:1.5px;cursor:pointer;font-family:'Jost',sans-serif;transition:.2s;display:flex;align-items:center;gap:8px}
+.act-btn:hover{border-color:var(--gold);color:var(--gold-l)}
+.act-btn.primary{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.act-btn.primary:hover{background:var(--gold-l)}
+
+/* ── MODAL ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--ink2);border:1px solid var(--bdr);padding:28px;width:480px;max-height:88vh;overflow-y:auto}
+.modal-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:22px;color:var(--cream);margin-bottom:18px}
+.modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:0}
+.field label{display:block;font-size:8px;letter-spacing:2px;color:var(--muted);margin-bottom:6px}
+.field input,.field select{width:100%;background:transparent;border:1px solid var(--bdr);color:var(--cream);padding:9px 11px;font-size:12px;font-family:'Jost',sans-serif}
+.field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+.field select option{background:var(--ink2)}
+.modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:20px;padding-top:16px;border-top:1px solid var(--bdr)}
+.btn-cancel{background:transparent;border:1px solid var(--bdr);color:var(--muted);padding:9px 18px;font-size:9px;letter-spacing:1.5px;cursor:pointer;font-family:'Jost',sans-serif}
+.btn-save{background:var(--gold);color:var(--ink);border:none;padding:9px 20px;font-size:9px;letter-spacing:1.5px;cursor:pointer;font-family:'Jost',sans-serif}
+.btn-save:hover{background:var(--gold-l)}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--ink2);border-left:2px solid var(--gold);padding:12px 18px;font-size:12px;color:var(--cream);z-index:999;display:none;box-shadow:0 4px 20px rgba(0,0,0,.5);max-width:300px}
+
+/* ── ANIM ── */
+@keyframes countUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.kpi-val{animation:countUp .4s ease both}
+</style>
+</head>
+<body>
+
+<!-- ── TOAST ── -->
+<div id="toast"></div>
+
+<!-- ── MODAL: NOVA CIRURGIA ── -->
+<div class="modal-bg" id="m-cirurgia">
+<div class="modal">
+  <div class="modal-title">Agendar Nova Cirurgia</div>
+  <div class="modal-grid">
+    <div class="field"><label>PACIENTE</label><select><option>Fernanda Costa</option><option>Lucas Mendes</option><option>Ana Paula Rodrigues</option><option>Mariana Lima</option></select></div>
+    <div class="field"><label>MÉDICO</label><select><option>Dr. Fabrício Bervian</option><option>Dr. Guilherme Larsen</option></select></div>
+    <div class="field"><label>PROCEDIMENTO</label><select><option>Rinoplastia Primária</option><option>Abdominoplastia</option><option>Mamoplastia</option><option>Blefaroplastia</option><option>Ritidoplastia</option><option>Lipoaspiração</option></select></div>
+    <div class="field"><label>HOSPITAL</label><select><option>Moinhos de Vento</option><option>São Lucas PUCRS</option><option>Venâncio Day Hospital</option></select></div>
+    <div class="field"><label>DATA</label><input type="date" value="2026-07-20"></div>
+    <div class="field"><label>HORÁRIO</label><input type="time" value="07:30"></div>
+    <div class="field"><label>VALOR (R$)</label><input type="number" value="28500"></div>
+    <div class="field"><label>STATUS</label><select><option>agendada</option><option>realizada</option></select></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeM()">Cancelar</button>
+    <button class="btn-save" onclick="saveCirurgia()">Salvar Cirurgia</button>
+  </div>
+</div>
+</div>
+
+<!-- ══════ PAGE ══════ -->
+<header>
+  <div>
+    <div class="logo">Ápice</div>
+    <div class="clinic">CLÍNICA BERVIAN & LARSEN — PAINEL ADMINISTRATIVO</div>
+  </div>
+  <div class="header-right">
+    <span class="date-range" id="date-range">01/06/2026 — 26/06/2026</span>
+    <button class="period-btn" onclick="setPeriod(this,'semana')">SEMANA</button>
+    <button class="period-btn active" onclick="setPeriod(this,'mes')">MÊS</button>
+    <button class="period-btn" onclick="setPeriod(this,'trimestre')">TRIMESTRE</button>
+    <button class="period-btn" onclick="setPeriod(this,'ano')">ANO</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- QUICK ACTIONS -->
+  <div class="actions-row" style="margin-top:24px">
+    <button class="act-btn primary" onclick="openM()">✦ NOVA CIRURGIA</button>
+    <button class="act-btn" onclick="toast('Abrindo cadastro de paciente...')">◎ NOVO PACIENTE</button>
+    <button class="act-btn" onclick="toast('Abrindo pipeline de leads...')">⊞ VER PIPELINE</button>
+    <button class="act-btn" onclick="toast('2 mensagens aguardando aprovação')">✉ MENSAGENS <span style="background:var(--dn);color:#fff;font-size:8px;padding:1px 6px;border-radius:10px;margin-left:2px">2</span></button>
+    <button class="act-btn" onclick="randomize()" style="margin-left:auto">↺ SIMULAR ATUALIZAÇÃO</button>
+  </div>
+
+  <!-- KPI GRID -->
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi accent" onclick="drillKpi('atendimentos')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">ATENDIMENTOS / MÊS</div>
+      <div class="kpi-val" id="kv-atend">37</div>
+      <div class="kpi-var up" id="kvar-atend">↑ 17% vs anterior</div>
+      <div class="kpi-sparkline" id="ks-atend"></div>
+    </div>
+    <div class="kpi accent" onclick="drillKpi('receita')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">RECEITA MENSAL</div>
+      <div class="kpi-val" id="kv-receita">R$ 158k</div>
+      <div class="kpi-var up" id="kvar-receita">↑ 15% vs anterior</div>
+      <div class="kpi-sparkline" id="ks-receita"></div>
+    </div>
+    <div class="kpi accent" onclick="drillKpi('ticket')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">TICKET MÉDIO</div>
+      <div class="kpi-val" id="kv-ticket">R$ 22,6k</div>
+      <div class="kpi-var up" id="kvar-ticket">↑ 8% vs anterior</div>
+      <div class="kpi-sparkline" id="ks-ticket"></div>
+    </div>
+    <div class="kpi accent" onclick="drillKpi('nps')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">NPS DA CLÍNICA</div>
+      <div class="kpi-val" id="kv-nps">94</div>
+      <div class="kpi-var up" id="kvar-nps">↑ Promotores: 89%</div>
+      <div class="kpi-sparkline" id="ks-nps"></div>
+    </div>
+    <div class="kpi" onclick="drillKpi('leads')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">LEADS EM ABERTO</div>
+      <div class="kpi-val" id="kv-leads">6</div>
+      <div class="kpi-var up" id="kvar-leads">↑ 2 novos esta semana</div>
+      <div class="kpi-sparkline" id="ks-leads"></div>
+    </div>
+    <div class="kpi" onclick="drillKpi('cirurgias')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">CIRURGIAS AGENDADAS</div>
+      <div class="kpi-val" id="kv-cir">4</div>
+      <div class="kpi-var nt" id="kvar-cir">Próximos 30 dias</div>
+      <div class="kpi-sparkline" id="ks-cir"></div>
+    </div>
+    <div class="kpi" onclick="drillKpi('conversao')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">TAXA DE CONVERSÃO</div>
+      <div class="kpi-val" id="kv-conv">25%</div>
+      <div class="kpi-var dn" id="kvar-conv">↓ 5% vs anterior</div>
+      <div class="kpi-sparkline" id="ks-conv"></div>
+    </div>
+    <div class="kpi" onclick="drillKpi('potencial')">
+      <div class="kpi-tooltip">Clique para ver detalhes</div>
+      <div class="kpi-label">POTENCIAL EM FECHAMENTO</div>
+      <div class="kpi-val" id="kv-pot">R$ 70k</div>
+      <div class="kpi-var" style="color:var(--gold-l)" id="kvar-pot">2 leads · proposta enviada</div>
+      <div class="kpi-sparkline" id="ks-pot"></div>
+    </div>
+  </div>
+
+  <!-- CHARTS ROW -->
+  <div class="charts-section">
+    <!-- Main chart: Cirurgias + Receita -->
+    <div class="chart-card">
+      <div class="chart-title">EVOLUÇÃO — 2026</div>
+      <div class="chart-subtitle" id="chart-main-title">Cirurgias por mês e receita gerada</div>
+      <div class="chart-tabs">
+        <div class="ct active" onclick="setChart(this,'cirurgias')">CIRURGIAS</div>
+        <div class="ct" onclick="setChart(this,'receita')">RECEITA</div>
+        <div class="ct" onclick="setChart(this,'leads')">LEADS</div>
+        <div class="ct" onclick="setChart(this,'conversao')">CONVERSÃO</div>
+      </div>
+      <div class="bar-group" id="main-chart"></div>
+      <div id="chart-footer" style="display:flex;justify-content:space-between;margin-top:10px;font-size:9px;color:var(--muted)">
+        <span id="chart-total"></span>
+        <span id="chart-avg"></span>
+      </div>
+    </div>
+
+    <!-- Donut: Procedimentos mix -->
+    <div class="chart-card">
+      <div class="chart-title">MIX DE PROCEDIMENTOS</div>
+      <div class="chart-subtitle">Distribuição por categoria</div>
+      <div style="margin-top:12px" class="donut-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120" id="donut-svg">
+          <!-- Filled by JS -->
+        </svg>
+        <div class="donut-legend" id="donut-legend"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM GRID -->
+  <div class="bottom-grid">
+    <!-- Próximas cirurgias -->
+    <div class="tbl-card">
+      <div class="tbl-head">
+        <div class="tbl-title">PRÓXIMAS CIRURGIAS</div>
+        <span class="tbl-badge" id="cirurgias-count">4 agendadas</span>
+      </div>
+      <table>
+        <thead><tr><th>PACIENTE</th><th>PROCEDIMENTO</th><th>DATA</th><th>STATUS</th></tr></thead>
+        <tbody id="cirurgias-tbody">
+          <tr><td><span class="status-dot dot-warn"></span>Fernanda Costa</td><td>Rinoplastia</td><td>08/07</td><td style="color:var(--gold-l)">07:30h</td></tr>
+          <tr><td><span class="status-dot dot-warn"></span>Lucas Mendes</td><td>Abdominoplastia</td><td>15/07</td><td style="color:var(--gold-l)">08:00h</td></tr>
+          <tr><td><span class="status-dot dot-warn"></span>Ana Paula R.</td><td>Mamoplastia</td><td>22/07</td><td style="color:var(--gold-l)">09:00h</td></tr>
+          <tr><td><span class="status-dot dot-warn"></span>Mariana Lima</td><td>Lipoaspiração</td><td>29/07</td><td style="color:var(--gold-l)">07:00h</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Activity feed -->
+    <div class="tbl-card">
+      <div class="tbl-head">
+        <div class="tbl-title">ATIVIDADE RECENTE</div>
+        <span class="tbl-badge" id="feed-badge">ao vivo</span>
+      </div>
+      <div class="feed-card" id="feed" style="padding:0;max-height:300px;background:transparent">
+        <div class="feed-item">
+          <div class="feed-ico gold">✦</div>
+          <div class="feed-body"><div class="feed-title">Cirurgia agendada — Fernanda Costa</div><div class="feed-sub">Rinoplastia Primária · Dr. Bervian · 08/07</div></div>
+          <div class="feed-time">14:32</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico blue">✉</div>
+          <div class="feed-body"><div class="feed-title">Nova mensagem aguardando aprovação</div><div class="feed-sub">Fernanda Costa — sentimento: RISCO</div></div>
+          <div class="feed-time">13:55</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico green">◎</div>
+          <div class="feed-body"><div class="feed-title">Novo lead cadastrado — Mariana Lima</div><div class="feed-sub">Lipoaspiração · R$ 18.000 · Instagram</div></div>
+          <div class="feed-time">12:10</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico green">✓</div>
+          <div class="feed-body"><div class="feed-title">Lead fechado — Ana Paula Rodrigues</div><div class="feed-sub">Mamoplastia · R$ 32.000</div></div>
+          <div class="feed-time">11:44</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico gold">⊞</div>
+          <div class="feed-body"><div class="feed-title">Lead avançado para Proposta</div><div class="feed-sub">Lucas Mendes · Abdominoplastia + Lipo</div></div>
+          <div class="feed-time">10:22</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico blue">🤖</div>
+          <div class="feed-body"><div class="feed-title">IA respondeu automaticamente</div><div class="feed-sub">Lucas Mendes — pergunta sobre jejum</div></div>
+          <div class="feed-time">09:58</div>
+        </div>
+        <div class="feed-item">
+          <div class="feed-ico green">✦</div>
+          <div class="feed-body"><div class="feed-title">Cirurgia realizada — Roberto Alves</div><div class="feed-sub">Rinoplastia Secundária · Dr. Bervian</div></div>
+          <div class="feed-time">ontem</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ══════ UTILS ══════
+function toast(msg, ms=2800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._t); t._t = setTimeout(() => t.style.display = 'none', ms);
+}
+function openM() { document.getElementById('m-cirurgia').classList.add('open'); }
+function closeM() { document.getElementById('m-cirurgia').classList.remove('open'); }
+document.getElementById('m-cirurgia').addEventListener('click', e => {
+  if (e.target === document.getElementById('m-cirurgia')) closeM();
+});
+
+// ══════ PERIOD ══════
+const PERIODS = {
+  semana:    {label:'19/06/2026 — 26/06/2026', mult:.25},
+  mes:       {label:'01/06/2026 — 26/06/2026', mult:1},
+  trimestre: {label:'01/04/2026 — 26/06/2026', mult:3},
+  ano:       {label:'01/01/2026 — 26/06/2026', mult:6},
+};
+let currentPeriod = 'mes';
+
+function setPeriod(btn, period) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentPeriod = period;
+  const p = PERIODS[period];
+  document.getElementById('date-range').textContent = p.label;
+  updateKPIs(p.mult);
+  drawMainChart(currentChart);
+  toast(`Período: ${period.charAt(0).toUpperCase() + period.slice(1)}`);
+}
+
+// ══════ KPI DATA ══════
+const BASE = {
+  atend: 37, receita: 158, ticket: 22.6, nps: 94,
+  leads: 6, cir: 4, conv: 25, pot: 70
+};
+
+function updateKPIs(mult) {
+  const f = (v, digits=0) => Math.round(v * mult * (0.9 + Math.random()*.2) * Math.pow(10,digits)) / Math.pow(10,digits);
+  const atend = f(BASE.atend); animVal('kv-atend', atend, '');
+  const rec   = f(BASE.receita); animVal('kv-receita', rec, 'R$ ', 'k');
+  const tick  = f(BASE.ticket, 1); animVal('kv-ticket', tick, 'R$ ', 'k');
+  animVal('kv-nps', Math.min(100, Math.round(BASE.nps * (0.95+Math.random()*.07))), '');
+  const leads = Math.max(2, f(BASE.leads)); animVal('kv-leads', leads, '');
+  const cir   = Math.max(1, f(BASE.cir)); animVal('kv-cir', cir, '');
+  animVal('kv-conv', Math.min(50, f(BASE.conv)), '', '%');
+  animVal('kv-pot', f(BASE.pot), 'R$ ', 'k');
+  buildSparklines();
+}
+
+function animVal(id, val, pre='', suf='') {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.style.animation = 'none';
+  el.offsetHeight; // reflow
+  el.style.animation = 'countUp .4s ease both';
+  el.textContent = pre + (Number.isInteger(val) ? val : val.toFixed(1)) + suf;
+}
+
+// ══════ SPARKLINES ══════
+function buildSparklines() {
+  const ids = ['atend','receita','ticket','nps','leads','cir','conv','pot'];
+  ids.forEach(id => {
+    const el = document.getElementById('ks-'+id);
+    if (!el) return;
+    const vals = Array.from({length:6}, () => 20 + Math.random()*80);
+    const max = Math.max(...vals);
+    el.innerHTML = vals.map(v =>
+      `<div class="spark" style="height:${Math.round((v/max)*28)}px"></div>`
+    ).join('');
+  });
+}
+
+// ══════ MAIN CHART ══════
+const CHART_DATA = {
+  cirurgias: {
+    months: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+    values: [4,6,8,6,6,7],
+    color: '#8B6914', label: 'cirurgias', unit: '',
+  },
+  receita: {
+    months: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+    values: [95,130,175,142,148,158],
+    color: '#D4B87A', label: 'R$ mil', unit: 'k',
+  },
+  leads: {
+    months: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+    values: [3,5,8,6,7,6],
+    color: '#4A90D9', label: 'leads', unit: '',
+  },
+  conversao: {
+    months: ['Jan','Fev','Mar','Abr','Mai','Jun'],
+    values: [22,28,35,25,30,25],
+    color: '#66BB6A', label: '%', unit: '%',
+  },
+};
+let currentChart = 'cirurgias';
+
+function setChart(btn, type) {
+  document.querySelectorAll('.ct').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentChart = type;
+  drawMainChart(type);
+}
+
+function drawMainChart(type) {
+  const d = CHART_DATA[type];
+  const mult = PERIODS[currentPeriod].mult;
+  const values = d.values.map(v => Math.round(v * mult * (0.85 + Math.random()*.3)));
+  const max = Math.max(...values);
+  const el = document.getElementById('main-chart');
+  el.innerHTML = values.map((v, i) => {
+    const h = Math.max(4, Math.round((v/max)*100));
+    const tip = `${d.months[i]}: ${v}${d.unit}`;
+    return `<div class="bar-col">
+      <div class="bar-val">${v}${d.unit}</div>
+      <div class="bar-seg-wrap">
+        <div class="bar-b" style="height:${h}%;background:${d.color}" data-tip="${tip}"></div>
+      </div>
+      <div class="bar-lbl">${d.months[i]}</div>
+    </div>`;
+  }).join('');
+  const total = values.reduce((a,b)=>a+b,0);
+  const avg = Math.round(total / values.length * 10) / 10;
+  document.getElementById('chart-total').textContent = `Total: ${total}${d.unit}`;
+  document.getElementById('chart-avg').textContent = `Média: ${avg}${d.unit}/mês`;
+}
+
+// ══════ DONUT ══════
+const PROCS = [
+  {name:'Rinoplastia', pct:35, color:'#8B6914', val:'13 cir.'},
+  {name:'Abdominoplastia', pct:22, color:'#D4B87A', val:'8 cir.'},
+  {name:'Mamoplastia', pct:18, color:'#6A6458', val:'7 cir.'},
+  {name:'Blefaroplastia', pct:13, color:'#4A4A3A', val:'5 cir.'},
+  {name:'Outros', pct:12, color:'#2A2820', val:'4 cir.'},
+];
+
+function drawDonut() {
+  const svg = document.getElementById('donut-svg');
+  const legend = document.getElementById('donut-legend');
+  const cx=60, cy=60, r=44, ri=28;
+  let angle = -Math.PI/2;
+  let paths = '';
+  PROCS.forEach(p => {
+    const sweep = (p.pct/100) * Math.PI * 2;
+    const x1=cx+r*Math.cos(angle), y1=cy+r*Math.sin(angle);
+    const x2=cx+r*Math.cos(angle+sweep), y2=cy+r*Math.sin(angle+sweep);
+    const xi1=cx+ri*Math.cos(angle), yi1=cy+ri*Math.sin(angle);
+    const xi2=cx+ri*Math.cos(angle+sweep), yi2=cy+ri*Math.sin(angle+sweep);
+    const large = sweep > Math.PI ? 1 : 0;
+    paths += `<path d="M${x1.toFixed(1)},${y1.toFixed(1)} A${r},${r} 0 ${large},1 ${x2.toFixed(1)},${y2.toFixed(1)} L${xi2.toFixed(1)},${yi2.toFixed(1)} A${ri},${ri} 0 ${large},0 ${xi1.toFixed(1)},${yi1.toFixed(1)} Z" fill="${p.color}" stroke="${'#0E0D0C'}" stroke-width="1.5" style="cursor:pointer;transition:.2s" onmouseenter="this.style.opacity='.75'" onmouseleave="this.style.opacity='1'"><title>${p.name}: ${p.pct}%</title></path>`;
+    angle += sweep;
+  });
+  svg.innerHTML = paths + `<text x="60" y="56" text-anchor="middle" font-size="9" fill="#6A6458" letter-spacing="1">37</text><text x="60" y="68" text-anchor="middle" font-size="8" fill="#6A6458" letter-spacing="1">cir.</text>`;
+  legend.innerHTML = PROCS.map(p =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${p.color}"></div><div class="legend-name">${p.name}</div><div class="legend-val">${p.val}</div><div class="legend-pct">${p.pct}%</div></div>`
+  ).join('');
+}
+
+// ══════ DRILL KPI ══════
+const KPI_DRILL = {
+  atendimentos:'37 atendimentos este mês: Dr. Bervian (21) + Dr. Larsen (16). Pico em março/26 com 8 cirurgias.',
+  receita:'R$ 158k em junho. Rinoplastia: R$ 42k · Abdominoplastia: R$ 35k · Outros: R$ 81k.',
+  ticket:'Ticket médio R$ 22,6k (+8%). Facial: R$ 28k · Corporal: R$ 33k.',
+  nps:'NPS 94: 89% promotores, 8% neutros, 3% detratores. Meta: 95.',
+  leads:'6 leads ativos: 3 Lead / 2 Consulta / 1 Proposta. Pipeline: R$ 133.500.',
+  cirurgias:'4 cirurgias agendadas: Rinoplastia, Abdominoplastia, Mamoplastia, Lipoaspiração.',
+  conversao:'Conversão 25% (17 leads → 4 fechamentos). Meta: 30%. Queda de 5% vs maio.',
+  potencial:'R$ 70k em 2 leads em proposta: Lucas Mendes (R$ 52k) + Rafaela Braga (R$ 18k).',
+};
+function drillKpi(id) {
+  toast(KPI_DRILL[id] || '');
+}
+
+// ══════ SAVE CIRURGIA ══════
+function saveCirurgia() {
+  closeM();
+  const tbody = document.getElementById('cirurgias-tbody');
+  const row = document.createElement('tr');
+  row.innerHTML = `<td><span class="status-dot dot-warn"></span>Nova Paciente</td><td>Rinoplastia</td><td>20/07</td><td style="color:var(--gold-l)">07:30h</td>`;
+  row.style.background = 'rgba(139,105,20,.08)';
+  tbody.insertBefore(row, tbody.firstChild);
+
+  // Update count badge
+  const count = tbody.querySelectorAll('tr').length;
+  document.getElementById('cirurgias-count').textContent = count + ' agendadas';
+
+  // Add to feed
+  addFeedItem('gold','✦','Cirurgia agendada — Nova Paciente','Rinoplastia Primária · Dr. Bervian · 20/07','agora');
+
+  toast('✓ Cirurgia agendada. Paciente notificada automaticamente.');
+  setTimeout(() => row.style.background = '', 2000);
+}
+
+function addFeedItem(cls, ico, title, sub, time) {
+  const feed = document.getElementById('feed');
+  const item = document.createElement('div');
+  item.className = 'feed-item';
+  item.style.background = 'rgba(139,105,20,.05)';
+  item.innerHTML = `<div class="feed-ico ${cls}">${ico}</div><div class="feed-body"><div class="feed-title">${title}</div><div class="feed-sub">${sub}</div></div><div class="feed-time">${time}</div>`;
+  feed.insertBefore(item, feed.firstChild);
+  setTimeout(() => item.style.background = '', 2000);
+}
+
+// ══════ RANDOMIZE ══════
+function randomize() {
+  const mult = PERIODS[currentPeriod].mult;
+  updateKPIs(mult);
+  drawMainChart(currentChart);
+  drawDonut();
+  const now = new Date();
+  const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const events = [
+    ['blue','✉','Nova mensagem recebida','Paciente perguntou sobre recuperação',hhmm],
+    ['green','◎','Lead qualificado','Novo interesse em Blefaroplastia · Instagram',hhmm],
+    ['gold','⊞','Lead avançado no funil','Proposta enviada · R$ 22.000',hhmm],
+    ['blue','🤖','IA respondeu automaticamente','Dúvida sobre jejum — sentimento NEUTRO',hhmm],
+  ];
+  const ev = events[Math.floor(Math.random()*events.length)];
+  addFeedItem(...ev);
+  toast('Dashboard atualizado — ' + hhmm);
+}
+
+// ══════ INIT ══════
+window.addEventListener('DOMContentLoaded', () => {
+  buildSparklines();
+  drawMainChart('cirurgias');
+  drawDonut();
+
+  // Auto-refresh feed every 18s
+  setInterval(() => {
+    const now = new Date();
+    const hhmm = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const events = [
+      ['blue','🤖','IA: resposta automática enviada','Paciente recebeu orientação pós-op',hhmm],
+      ['green','✓','Checklist atualizado','Fernanda marcou item: exames entregues',hhmm],
+      ['gold','✦','Lembrete automático enviado','T-72h: Fernanda Costa · Rinoplastia',hhmm],
+      ['blue','✉','Mensagem aprovada pelo admin','Resposta enviada para Lucas Mendes',hhmm],
+    ];
+    const ev = events[Math.floor(Math.random()*events.length)];
+    addFeedItem(...ev);
+  }, 18000);
+});
+</script>
+</body>
+</html>
