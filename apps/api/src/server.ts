@@ -45,7 +45,7 @@ app.use(errorHandler)
 const server = createServer(app)
 
 server.listen(PORT, () => {
-  logger.info(`🚀 Ápice API running on port ${PORT}`)
+  logger.info(`🚀 Método Black API running on port ${PORT}`)
   startCronJobs()
 })
 

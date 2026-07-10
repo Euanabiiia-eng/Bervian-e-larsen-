@@ -3,7 +3,7 @@ import { Toaster } from 'sonner'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Plataforma Ápice by Black Premium',
+  title: 'Método Black by Black Premium',
   description: 'Eleve. Estruture. Lidere.',
 }
 

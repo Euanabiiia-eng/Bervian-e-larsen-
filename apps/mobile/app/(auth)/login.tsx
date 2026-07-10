@@ -44,8 +44,9 @@ export default function LoginScreen() {
         {/* Logo */}
         <View style={styles.logoArea}>
           <View style={styles.logoBorder}>
-            <Text style={styles.logoChar}>Á</Text>
+            <Text style={styles.logoChar}>B</Text>
           </View>
+          <Text style={styles.logoWordmark}>MÉTODO BLACK</Text>
           <Text style={styles.logoSub}>by Black Premium</Text>
         </View>
 
@@ -122,6 +123,13 @@ const styles = StyleSheet.create({
     fontSize: 28,
     color: '#8B6914',
     letterSpacing: 6,
+  },
+  logoWordmark: {
+    fontFamily: 'Jost_300Light',
+    fontSize: 15,
+    color: '#F7F2EA',
+    letterSpacing: 3,
+    marginBottom: 4,
   },
   logoSub: {
     fontFamily: 'Jost_300Light',

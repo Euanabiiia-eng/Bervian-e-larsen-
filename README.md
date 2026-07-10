@@ -1,10 +1,22 @@
-# Plataforma Ápice by Black Premium
+# Método Black by Black Premium
 
 > **Eleve. Estruture. Lidere.**
 
 SaaS multi-clínica para gestão de experiência do paciente em cirurgia plástica premium.
 
 **Cliente piloto:** Clínica Bervian & Larsen — Porto Alegre/RS
+
+---
+
+## O Método Black
+
+**Método Black** é a metodologia comercial e de jornada do paciente por trás desta plataforma — o processo estruturado que a Black Premium aplica em clínicas de cirurgia plástica premium, do primeiro contato do lead até o pós-operatório. O CRM é a implementação em software desse método, em três frentes:
+
+1. **Pipeline comercial (Kanban)** — todo lead percorre 4 estágios (Novo Lead → Consulta Agendada → Proposta Enviada → Fechado), com movimentação e follow-up centralizados no painel `/pipeline`.
+2. **Jornada do paciente (8 etapas)** — do fechamento até a alta, o paciente é conduzido por etapas com progresso visual e checklist automatizado, entregue via app mobile.
+3. **Atendimento em 3 camadas** — resposta rápida automática → IA (Anthropic) → fila de aprovação humana, com automações cron nos marcos T-72h, T-24h, T-2h e D+1 pós-alta.
+
+Essas três frentes — pipeline, jornada e atendimento — são os pilares do Método Black, formalizados abaixo em "Funcionalidades".
 
 ---
 
@@ -151,4 +163,4 @@ cd apps/mobile && npx expo build
 
 ---
 
-*Plataforma Ápice by Black Premium — Todos os direitos reservados.*
+*Método Black by Black Premium — Todos os direitos reservados.*

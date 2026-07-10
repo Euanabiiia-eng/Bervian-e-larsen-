@@ -52,11 +52,11 @@ export default function ChatScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.avatar}>
-            <Text style={styles.avatarText}>Á</Text>
+            <Text style={styles.avatarText}>B</Text>
           </View>
           <View>
             <Text style={styles.headerName}>
-              {paciente?.clinic?.nome ?? 'Clínica Ápice'}
+              {paciente?.clinic?.nome ?? 'Clínica Método Black'}
             </Text>
             <Text style={styles.headerStatus}>IA + Equipe · 24h</Text>
           </View>

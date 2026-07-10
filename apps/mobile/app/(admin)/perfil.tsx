@@ -64,7 +64,7 @@ export default function PerfilScreen() {
         <View style={s.strip}>
           <View style={s.stripItem}>
             <Text style={s.stripIcon}>◈</Text>
-            <Text style={s.stripLbl}>Plataforma Ápice</Text>
+            <Text style={s.stripLbl}>Método Black</Text>
           </View>
           <View style={s.stripDivider} />
           <View style={s.stripItem}>
@@ -80,7 +80,7 @@ export default function PerfilScreen() {
           </TouchableOpacity>
         </View>
 
-        <Text style={s.version}>Ápice · v1.0.0</Text>
+        <Text style={s.version}>Método Black · v1.0.0</Text>
       </ScrollView>
     </SafeAreaView>
   )

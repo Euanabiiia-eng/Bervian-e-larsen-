@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Seeding Plataforma Ápice...')
+  console.log('🌱 Seeding Método Black...')
 
   // ─── Clínica ──────────────────────────────────────────────────────────────
   const clinic = await prisma.clinic.upsert({
@@ -28,7 +28,7 @@ async function main() {
     update: {},
     create: {
       clinicId: clinic.id,
-      nome: 'Administrador Ápice',
+      nome: 'Administrador Método Black',
       email: 'admin@bervianlarsen.com.br',
       senhaHash: adminHash,
       role: 'clinic_admin',
@@ -715,7 +715,7 @@ Meia calça de compressão (se indicada)`,
         pacienteId: fernanda.id,
         clinicId: clinic.id,
         remetente: 'clinic',
-        conteudo: 'Olá, Fernanda! Seja bem-vinda à Plataforma Ápice. Aqui você acompanhará toda a sua jornada até a cirurgia e o pós-operatório. Qualquer dúvida, estamos à disposição. 🌿',
+        conteudo: 'Olá, Fernanda! Seja bem-vinda ao Método Black. Aqui você acompanhará toda a sua jornada até a cirurgia e o pós-operatório. Qualquer dúvida, estamos à disposição. 🌿',
         tipo: 'manual',
         pendienteAprovacao: false,
         sentimentoScore: 0.9,

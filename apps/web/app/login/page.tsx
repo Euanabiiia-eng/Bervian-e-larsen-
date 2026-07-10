@@ -43,7 +43,7 @@ export default function LoginPage() {
         {/* Logo area */}
         <div className="text-center mb-12">
           <div className="inline-block border border-gold-pale px-6 py-3 mb-6">
-            <span className="font-serif text-2xl italic text-gold tracking-widest">ÁPICE</span>
+            <span className="font-serif text-2xl italic text-gold tracking-widest">MÉTODO BLACK</span>
           </div>
           <p className="text-ink-pale text-sm tracking-[0.2em] uppercase font-light">
             by Black Premium

@@ -66,10 +66,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="px-6 py-7 border-b border-ink-dim">
           <div className="flex items-center gap-3">
             <div className="border border-gold-pale px-2 py-1">
-              <span className="font-serif italic text-gold text-sm tracking-widest">Á</span>
+              <span className="font-serif italic text-gold text-sm tracking-widest">B</span>
             </div>
             <div>
-              <p className="text-white text-xs tracking-widest uppercase font-light">Ápice</p>
+              <p className="text-white text-xs tracking-widest uppercase font-light">Método Black</p>
               <p className="text-ink-pale text-2xs tracking-widest">by Black Premium</p>
             </div>
           </div>
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <button onClick={() => setSidebarOpen(true)} className="text-ink-pale hover:text-ink">
             <Menu size={20} />
           </button>
-          <span className="font-serif italic text-gold text-lg">Ápice</span>
+          <span className="font-serif italic text-gold text-lg">Método Black</span>
           <div className="w-5" />
         </div>
 
